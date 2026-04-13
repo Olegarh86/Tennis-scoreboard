@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="connection.url">jdbc:h2:mem:db_scoreboard</property>
+    <property name="connection.driver">org.h2.Driver</property>
+     <property name="connection.username">Olegarh</property>
+     <property name="connection.password">Olegarh86</property>
+
+      <property name="hibernate.hbm2ddl.auto">create</property>
+      <property name="hibernate.show_sql">true</property>
+      <property name="hibernate.format_sql">true</property>
+      <property name="current_session_context_class">thread</property>
+
+      <mapping class="ru.tennis.model.Player"/>
+      <mapping class="ru.tennis.model.Match"/>
+
+  </session-factory>
+</hibernate-configuration>
