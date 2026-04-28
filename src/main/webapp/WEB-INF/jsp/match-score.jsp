@@ -1,7 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<jsp:useBean id="player1" scope="application" class="ru.tennis.model.Player"/>
-<jsp:useBean id="player2" scope="application" class="ru.tennis.model.Player"/>
 <jsp:useBean id="currentMatch" scope="request" class="ru.tennis.CurrentMatch"/>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,74 +10,42 @@
 <body>
 <%@include file="header.jsp" %>
 <main class="container">
-    <h1>
-        <%= "Current match" %>
-    </h1>
+    <h1>Current match</h1>
     <div class="current-match-image"></div>
     <div class="score">
         <table class="table">
             <tr class="result th">
-                <th>
-                    Player
-                </th>
-                <th>
-                    Sets
-                </th>
-                <th>
-                    Games
-                </th>
-                <th>
-                    Points
-                </th>
-                <th>
-
-                </th>
+                <th>Player</th>
+                <th>Sets</th>
+                <th>Games</th>
+                <th>Points</th>
+                <th></th>
             </tr>
             <tr class="player1 td table tr">
-                <td class="player1">
-                    <c:out value="${player1.name}" />
-                </td>
-                <td>
-                    <c:out value="${requestScope.currentMatch.set['1']}" />
-                </td>
-                <td>
-                    <c:out value="${requestScope.currentMatch.game['1']}" />
-                </td>
-                <td>
-                    <c:out value="${requestScope.currentMatch.score['1']}" />
-                </td>
+                <td class="player1"><c:out value="${currentMatch.firstPlayer.name}"/></td>
+                <td><c:out value="${currentMatch.firstPlayer.set}"/></td>
+                <td><c:out value="${currentMatch.firstPlayer.game}"/></td>
+                <td><c:out value="${currentMatch.firstPlayer.score.toString()}"/></td>
                 <td>
                     <form action="match-score?uuid=${param.uuid}"
                           method="post">
-                        <button type="submit"
-                                name="winner"
-                                value="${applicationScope.player1.id}"
-                                class="score-btn table-text">
+                        <button class="score-btn table-text" type="submit" name="winner"
+                                value="${currentMatch.firstPlayer.id}">
                             score
                         </button>
                     </form>
                 </td>
             </tr>
             <tr class="player2 td table tr">
-                <td class="player2">
-                    <c:out value="${player2.name}" />
-                </td>
-                <td>
-                    <c:out value="${requestScope.currentMatch.set['2']}" />
-                </td>
-                <td>
-                    <c:out value="${requestScope.currentMatch.game['2']}" />
-                </td>
-                <td>
-                    <c:out value="${requestScope.currentMatch.score['2']}" />
-                </td>
+                <td class="player2"><c:out value="${currentMatch.secondPlayer.name}"/></td>
+                <td><c:out value="${currentMatch.secondPlayer.set}"/></td>
+                <td><c:out value="${currentMatch.secondPlayer.game}"/></td>
+                <td><c:out value="${currentMatch.secondPlayer.score.toString()}"/></td>
                 <td>
                     <form action="match-score?uuid=${param.uuid}"
                           method="post">
-                        <button type="submit"
-                                name="winner"
-                                value="${applicationScope.player2.id}"
-                                class="score-btn table-text">
+                        <button class="score-btn table-text" type="submit" name="winner"
+                                value="${currentMatch.secondPlayer.id}">
                             score
                         </button>
                     </form>

@@ -15,4 +15,8 @@ public class OngoingMatchesService {
     public static CurrentMatch getCurrentMatch(String uuid) {
         return currentMatches.get(uuid);
     }
+
+    public static void deleteMatch(CurrentMatch currentMatch) {
+        currentMatches.remove(currentMatch.getUuid());
+    }
 }

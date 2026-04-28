@@ -2,13 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>New currentMatch</title>
+    <title>New match</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css"/>
 </head>
 <body>
 <%@include file="header.jsp" %>
 <main class="container">
-    <h1>Start new currentMatch</h1>
+    <h1>Start new match</h1>
 
     <div class="new-match-image"></div>
 

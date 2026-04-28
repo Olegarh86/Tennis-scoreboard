@@ -33,16 +33,8 @@ public class NewMatchServlet extends HttpServlet {
             Player player1 = getPlayer(session, playerName1);
             Player player2 = getPlayer(session, playerName2);
 
-            CurrentMatch currentMatch = new CurrentMatch(player1.getId(), player2.getId());
+            CurrentMatch currentMatch = new CurrentMatch(player1, player2);
             OngoingMatchesService.addMatch(currentMatch);
-
-//            Map<String, CurrentMatch> currentMatches = new HashMap<>();
-//            String uuid = currentMatch.getUuid();
-//            currentMatches.put(uuid, currentMatch);
-//            getServletContext().setAttribute("currentMatch", currentMatch);
-//            getServletContext().setAttribute("currentMatches", currentMatches);
-            getServletContext().setAttribute("player1", player1);
-            getServletContext().setAttribute("player2", player2);
             transaction.commit();
             resp.sendRedirect("/match-score?uuid=" + currentMatch.uuid);
         }

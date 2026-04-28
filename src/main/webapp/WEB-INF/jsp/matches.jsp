@@ -1,16 +1,35 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Olegarh
-  Date: 22.04.2026
-  Time: 11:53
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-  <head>
-    <title>$Title$</title>
-  </head>
-  <body>
-  $END$
-  </body>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Matches</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}css/style.css"/>
+</head>
+<body>
+<%@include file="header.jsp" %>
+<main class="container">
+    <h1>Matches</h1>
+
+    <form class="input-container" action="matches" method="get">
+        <input class="input-filter" type="text" name="filter_by_player_name" placeholder="Find matches by player name"/>
+        <button class="btn-filter" type="submit">Find</button>
+    </form>
+
+    <table class="table-matches">
+        <tr>
+            <th>Player One</th>
+            <th>Player Two</th>
+            <th>Winner</th>
+        </tr>
+        <c:forEach var="allMatches" items="${requestScope.allMatches}">
+            <tr>
+                <td>${allMatches.player1.name}</td>
+                <td>${allMatches.player2.name}</td>
+                <td><span class="winner-name-td">${allMatches.winner.name}</span></td>
+            </tr>
+        </c:forEach>
+    </table>
+    <%@include file="footer.jsp" %>
+</body>
 </html>

@@ -1,20 +1,14 @@
 package ru.tennis;
 
+import lombok.Getter;
+import lombok.Setter;
 import ru.tennis.model.Player;
 
-public class FirstPlayer {
+@Getter
+@Setter
+public class SecondPlayer extends PlayerOrder {
 
-    public final Integer id;
-    public final String name;
-    public final Score score;
-    public final Integer game;
-    public final Integer set;
-
-    FirstPlayer(Player player) {
-        this.id = player.getId();
-        this.name = player.getName();
-        this.score = Score.ZERO;
-        this.game = 0;
-        this.set = 0;
+    SecondPlayer(Player player) {
+        super(player);
     }
 }
