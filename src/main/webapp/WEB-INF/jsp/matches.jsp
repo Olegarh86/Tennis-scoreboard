@@ -30,6 +30,29 @@
             </tr>
         </c:forEach>
     </table>
+    <div class="pagination">
+
+        <a class="prev" href="matches?page=${requestScope.currentPage - 1}"> < </a>
+
+        <div class="num-page">
+            <c:forEach var="count" begin="1" end="${requestScope.pageCount}">
+
+                <c:choose>
+                    <c:when test="${requestScope.currentPage == count}">
+                        <span class="current">${count}</span>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="matches?page=${count}">${count}</a>
+                    </c:otherwise>
+                </c:choose>
+
+            </c:forEach>
+        </div>
+
+        <a class="next" href="matches?page=${requestScope.currentPage + 1}"> > </a>
+
+    </div>
     <%@include file="footer.jsp" %>
+</main>
 </body>
 </html>

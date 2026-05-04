@@ -5,7 +5,7 @@ import ru.tennis.*;
 
 public class MatchScoreCalculationService {
 
-    public static void updateScore(CurrentMatch currentMatch, String playerGetPoint) {
+    public static void updateMatchState(CurrentMatch currentMatch, String playerGetPoint) {
         Integer idPlayerGetPoint = Integer.parseInt(playerGetPoint);
 
         if (currentMatch.firstPlayer.id.equals(idPlayerGetPoint)) {

@@ -10,7 +10,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import ru.tennis.CurrentMatch;
 import ru.tennis.model.Match;
-import ru.tennis.model.Player;
 import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.service.MatchScoreCalculationService;
 import ru.tennis.service.OngoingMatchesService;
@@ -23,32 +22,40 @@ import java.util.List;
 public class MatchScoreServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("currentMatch", OngoingMatchesService.getCurrentMatch(req.getParameter("uuid")));
+        CurrentMatch currentMatch = OngoingMatchesService.getCurrentMatch(req.getParameter("uuid"));
+        req.setAttribute("currentMatch", currentMatch);
         req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String playerGetPoint = req.getParameter("winner");
+        String winnerId = req.getParameter("winner");
         String uuid = req.getParameter("uuid");
 
         CurrentMatch currentMatch = OngoingMatchesService.getCurrentMatch(uuid);
-        MatchScoreCalculationService.updateScore(currentMatch, playerGetPoint);
+        MatchScoreCalculationService.updateMatchState(currentMatch, winnerId);
 
-        CurrentMatch newCurrentMatch = OngoingMatchesService.getCurrentMatch(uuid);
-        if (newCurrentMatch != null) {
-            req.setAttribute("currentMatch", newCurrentMatch);
+        CurrentMatch matchAfterUpdate = OngoingMatchesService.getCurrentMatch(uuid);
+        if (matchAfterUpdate != null) {
+            req.setAttribute("currentMatch", matchAfterUpdate);
             req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
         } else {
             SessionFactory sessionFactory = (SessionFactory) getServletContext().getAttribute("sessionFactory");
             try (Session session = sessionFactory.openSession()) {
+                int pageSize = 10;
                 Transaction transaction = session.beginTransaction();
                 FinishedMatchesPersistenceService.persist(session, currentMatch);
-                List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session);
+                List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, 0);
+                Long totalItems = FinishedMatchesPersistenceService.getTotalCount(session);
                 transaction.commit();
+
+                int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
+                req.setAttribute("currentPage", 1);
+                req.setAttribute("pageCount", pageCount);
                 req.setAttribute("allMatches", allFinishedMatches);
             }
-            req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
+            resp.sendRedirect("/matches");
+//            req.getRequestDispatcher("/matches").forward(req, resp);
         }
     }
 }

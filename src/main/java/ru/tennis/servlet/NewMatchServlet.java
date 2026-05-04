@@ -9,8 +9,10 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import ru.tennis.CurrentMatch;
+import ru.tennis.model.Match;
 import ru.tennis.model.Player;
 import ru.tennis.service.OngoingMatchesService;
+import ru.tennis.util.DataBaseUtil;
 import ru.tennis.util.JspHelper;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class NewMatchServlet extends HttpServlet {
         SessionFactory sessionFactory = (SessionFactory) getServletContext().getAttribute("sessionFactory");
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
+            DataBaseUtil.addNMatches(session, 21);
             Player player1 = getPlayer(session, playerName1);
             Player player2 = getPlayer(session, playerName2);
 

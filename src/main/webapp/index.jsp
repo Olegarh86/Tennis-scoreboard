@@ -32,7 +32,7 @@
                 <p>Новая игра</p>
             </a>
             <br/>
-            <a class="view-results homepage-action-button matches-button" href="matches">
+            <a class="view-results homepage-action-button matches-button" href="${pageContext.request.contextPath}/matches">
                 <p>Результаты</p>
             </a>
         </div>
