@@ -58,7 +58,7 @@ public class FinishedMatchesPersistenceService {
     }
 
     public static Long getTotalCountWithName(Session session, String playerName) {
-        String hql = "select count(*) from Match where player1.name = :playerName";
+        String hql = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
         return session.createQuery(hql, Long.class)
                 .setParameter("playerName", playerName)
                 .uniqueResult();

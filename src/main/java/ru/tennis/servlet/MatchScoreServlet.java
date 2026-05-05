@@ -54,7 +54,7 @@ public class MatchScoreServlet extends HttpServlet {
                 req.setAttribute("pageCount", pageCount);
                 req.setAttribute("allMatches", allFinishedMatches);
             }
-            resp.sendRedirect("/matches");
+            resp.sendRedirect("/matches?page=1&filter_by_player_name=");
 //            req.getRequestDispatcher("/matches").forward(req, resp);
         }
     }

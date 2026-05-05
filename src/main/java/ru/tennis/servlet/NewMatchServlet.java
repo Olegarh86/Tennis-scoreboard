@@ -32,7 +32,7 @@ public class NewMatchServlet extends HttpServlet {
         SessionFactory sessionFactory = (SessionFactory) getServletContext().getAttribute("sessionFactory");
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            DataBaseUtil.addNMatches(session, 21);
+//            DataBaseUtil.addNMatches(session, 21);
             Player player1 = getPlayer(session, playerName1);
             Player player2 = getPlayer(session, playerName2);
 

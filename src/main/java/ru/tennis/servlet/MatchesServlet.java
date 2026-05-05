@@ -22,7 +22,7 @@ public class MatchesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int currentPage = 1;
-        int pageSize = 5;
+        int pageSize = 2;
         String playerName = req.getParameter("filter_by_player_name");
         String pageNumber = req.getParameter("page");
 
@@ -38,7 +38,7 @@ public class MatchesServlet extends HttpServlet {
             List<Match> allMatches;
             Long totalItems;
 
-            if (playerName != null) {
+            if (playerName.length() > 1) {
                 totalItems = FinishedMatchesPersistenceService.getTotalCountWithName(session, playerName);
                 allMatches = FinishedMatchesPersistenceService.getMatchesByPlayerName(session, playerName, pageSize, offset);
             } else {
@@ -49,6 +49,7 @@ public class MatchesServlet extends HttpServlet {
 
             transaction.commit();
             int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
+            req.setAttribute("filter_by_player_name", playerName);
             req.setAttribute("currentPage", currentPage);
             req.setAttribute("pageCount", pageCount);
             req.setAttribute("allMatches", allMatches);
