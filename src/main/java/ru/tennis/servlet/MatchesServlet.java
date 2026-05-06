@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import ru.tennis.exceptions.PageNotFoundException;
 import ru.tennis.model.Match;
 import ru.tennis.model.Player;
 import ru.tennis.service.FinishedMatchesPersistenceService;
@@ -21,15 +22,22 @@ public class MatchesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int currentPage = 1;
-        int pageSize = 2;
+        int page = 1;
+        int pageSize = 7;
         String playerName = req.getParameter("filter_by_player_name");
         String pageNumber = req.getParameter("page");
 
-        if (pageNumber != null) {
-            currentPage = Integer.parseInt(pageNumber);
+        if (!pageNumber.isEmpty()) {
+            page = Integer.parseInt(pageNumber);
         }
-        int offset = (currentPage - 1) * pageSize;
+
+        if (page < 1) {
+            page = 1;
+            req.getRequestDispatcher(String.format("/matches?page=%s&filter_by_player_name=%s", page, playerName))
+                    .forward(req, resp);
+        }
+
+        int offset = (page - 1) * pageSize;
 
         SessionFactory sessionFactory = (SessionFactory) getServletContext().getAttribute("sessionFactory");
         try (Session session = sessionFactory.openSession()) {
@@ -43,14 +51,26 @@ public class MatchesServlet extends HttpServlet {
                 allMatches = FinishedMatchesPersistenceService.getMatchesByPlayerName(session, playerName, pageSize, offset);
             } else {
                 totalItems = FinishedMatchesPersistenceService.getTotalCount(session);
-                allMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize,  offset);
+                allMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, offset);
             }
-
 
             transaction.commit();
             int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
+
+            if (pageCount < 1) {
+                page = 1;
+                req.setAttribute("filter_by_player_name", playerName);
+                req.setAttribute("page", page);
+                req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
+            }
+
+            if (page > pageCount) {
+                page = pageCount;
+                req.getRequestDispatcher(String.format("/matches?page=%s&filter_by_player_name=%s", page, playerName))
+                        .forward(req, resp);
+            }
             req.setAttribute("filter_by_player_name", playerName);
-            req.setAttribute("currentPage", currentPage);
+            req.setAttribute("page", page);
             req.setAttribute("pageCount", pageCount);
             req.setAttribute("allMatches", allMatches);
         }

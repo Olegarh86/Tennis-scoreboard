@@ -32,7 +32,8 @@
                 <p>Новая игра</p>
             </a>
             <br/>
-            <a class="view-results homepage-action-button matches-button" href="${pageContext.request.contextPath}/matches">
+            <a class="view-results homepage-action-button matches-button"
+               href="${pageContext.request.contextPath}/matches?page=1&filter_by_player_name=">
                 <p>Результаты</p>
             </a>
         </div>

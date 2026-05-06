@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,13 +14,14 @@
 
     <form class="input-container" action="matches" method="get">
 
+        <input type="hidden" name="page" value="${requestScope.page}"/>
         <c:choose>
-            <c:when test="${fn:length(requestScope.filter_by_player_name) > 1}">
+            <c:when test="${fn:length(requestScope.filter_by_player_name) > 0}">
                 <input class="input-filter" type="text" name="filter_by_player_name" value="${requestScope.filter_by_player_name}"
                        placeholder="Find matches by player name"/>
             </c:when>
             <c:otherwise>
-                <input class="input-filter" type="text" name="filter_by_player_name"
+                <input class="input-filter" type="text" name="filter_by_player_name" value="${requestScope.filter_by_player_name}"
                        placeholder="Find matches by player name"/>
             </c:otherwise>
         </c:choose>
@@ -44,13 +45,13 @@
     </table>
     <div class="pagination">
 
-        <a class="prev" href="matches?page=${requestScope.currentPage - 1}&filter_by_player_name=${requestScope.filter_by_player_name}"> < </a>
+        <a class="prev" href="matches?page=${requestScope.page - 1}&filter_by_player_name=${requestScope.filter_by_player_name}"> < </a>
 
         <div class="num-page">
             <c:forEach var="count" begin="1" end="${requestScope.pageCount}">
 
                 <c:choose>
-                    <c:when test="${requestScope.currentPage == count}">
+                    <c:when test="${requestScope.page == count}">
                         <span class="current">${count}</span>
                     </c:when>
                     <c:otherwise>
@@ -61,7 +62,7 @@
             </c:forEach>
         </div>
 
-        <a class="next" href="matches?page=${requestScope.currentPage + 1}&filter_by_player_name=${requestScope.filter_by_player_name}"> > </a>
+        <a class="next" href="matches?page=${requestScope.page + 1}&filter_by_player_name=${requestScope.filter_by_player_name}"> > </a>
 
     </div>
     <%@include file="footer.jsp" %>
