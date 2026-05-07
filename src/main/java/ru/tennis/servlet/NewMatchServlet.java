@@ -33,8 +33,8 @@ public class NewMatchServlet extends HttpServlet {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             DataBaseUtil.addNFinishedMatchesWithRandomPlayers(session, 21);
-            Player player1 = FinishedMatchesPersistenceService.getPlayer(session, playerName1);
-            Player player2 = FinishedMatchesPersistenceService.getPlayer(session, playerName2);
+            Player player1 = FinishedMatchesPersistenceService.getPlayerByName(session, playerName1);
+            Player player2 = FinishedMatchesPersistenceService.getPlayerByName(session, playerName2);
 
             CurrentMatch currentMatch = new CurrentMatch(player1, player2);
             OngoingMatchesService.addMatch(currentMatch);

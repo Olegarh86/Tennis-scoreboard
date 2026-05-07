@@ -10,33 +10,40 @@ import java.util.Optional;
 
 public class FinishedMatchesPersistenceService {
 
-    public static Player getPlayer(Session session, String name) {
+    private static Player createNewPlayer(Session session, String name) {
+        Player player;
+        player = Player.builder().name(name).build();
+        session.persist(player);
+        return player;
+    }
 
+    public static Player getPlayerByName(Session session, String name) {
         Player player = session.createQuery("select p from Player p where p.name = :name", Player.class)
                 .setParameter("name", name)
                 .uniqueResult();
 
         if (player == null) {
-            player = Player.builder().name(name).build();
-            session.persist(player);
+            player = createNewPlayer(session, name);
         }
-
         return player;
+    }
+
+    public static Player getPlayerById(Session session, int playerId) {
+        return session.createQuery("select p from Player p where p.id = :playerId", Player.class)
+                .setParameter("playerId", playerId)
+                .uniqueResult();
     }
 
     public static void persist(Session session, CurrentMatch currentMatch) {
         int playerId1 = currentMatch.firstPlayer.id;
-        Player player1 = session.createQuery("select p from Player p where p.id = :playerId1", Player.class)
-                .setParameter("playerId1", playerId1)
-                .uniqueResult();
+        Player player1 = getPlayerById(session, playerId1);
 
         int playerId2 = currentMatch.secondPlayer.id;
-        Player player2 = session.createQuery("select p from Player p where p.id = :playerId2", Player.class)
-                .setParameter("playerId2", playerId2)
-                .uniqueResult();
+        Player player2 = getPlayerById(session, playerId2);
 
         Integer winnerId = currentMatch.winnerId;
         Player winner = null;
+
         if (winnerId.equals(playerId1)) {
             winner = player1;
         }
@@ -44,18 +51,27 @@ public class FinishedMatchesPersistenceService {
         if (winnerId.equals(playerId2)) {
             winner = player2;
         }
+        Match match = getMatch(session, player1, player2, winner);
 
-        Match match = session.createQuery("select m from Match m where m.player1 = :player1 and m.player2 = " +
-                                          ":player2 and m.winner = :winner", Match.class)
+        if (match == null) {
+            match = createNewMatch(session, player1, player2, winner);
+        }
+    }
+
+    private static Match getMatch(Session session, Player player1, Player player2, Player winner) {
+        return session.createQuery("select m from Match m where m.player1 = :player1 and m.player2 = " +
+                                   ":player2 and m.winner = :winner", Match.class)
                 .setParameter("player1", player1)
                 .setParameter("player2", player2)
                 .setParameter("winner", winner)
                 .uniqueResult();
+    }
 
-        if (match == null) {
-            match = Match.builder().player1(player1).player2(player2).winner(winner).build();
-            session.persist(match);
-        }
+    private static Match createNewMatch(Session session, Player player1, Player player2, Player winner) {
+        Match match;
+        match = Match.builder().player1(player1).player2(player2).winner(winner).build();
+        session.persist(match);
+        return match;
     }
 
     public static List<Match> getAllMatches(Session session, Optional<String> playerName, int pageSize, int offset) {
