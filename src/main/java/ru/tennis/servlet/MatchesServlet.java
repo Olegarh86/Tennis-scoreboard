@@ -14,6 +14,7 @@ import ru.tennis.util.JspHelper;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @WebServlet(name = "matches", urlPatterns = "/matches")
 public class MatchesServlet extends HttpServlet {
@@ -44,12 +45,13 @@ public class MatchesServlet extends HttpServlet {
             List<Match> allMatches;
             Long totalItems;
 
-            if (!playerName.isEmpty()) {
-                totalItems = FinishedMatchesPersistenceService.getTotalCountMatchesByName(session, playerName);
-                allMatches = FinishedMatchesPersistenceService.getAllMatchesByName(session, playerName, pageSize, offset);
-            } else {
-                totalItems = FinishedMatchesPersistenceService.getTotalCountAllMatches(session);
+            if (playerName.isEmpty()) {
+                totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session, Optional.empty());
                 allMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, offset);
+            } else {
+                totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session,
+                        Optional.of(playerName));
+                allMatches = FinishedMatchesPersistenceService.getAllMatchesByName(session, playerName, pageSize, offset);
             }
 
             transaction.commit();

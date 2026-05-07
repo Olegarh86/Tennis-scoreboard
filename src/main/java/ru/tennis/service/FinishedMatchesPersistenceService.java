@@ -6,6 +6,7 @@ import ru.tennis.model.Match;
 import ru.tennis.model.Player;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FinishedMatchesPersistenceService {
 
@@ -71,15 +72,27 @@ public class FinishedMatchesPersistenceService {
                 .list();
     }
 
-    public static Long getTotalCountMatchesByName(Session session, String playerName) {
-        String hql = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
-        return session.createQuery(hql, Long.class)
-                .setParameter("playerName", playerName)
-                .uniqueResult();
+    public static Long getTotalNumberOfMatches(Session session, Optional <String> playerName) {
+        String hql;
+        if (playerName.isEmpty()) {
+            hql = "select count(*) from Match";
+            return session.createQuery(hql, Long.class).uniqueResult();
+        } else {
+            String name = playerName.get();
+            hql = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
+            return session.createQuery(hql, Long.class)
+                    .setParameter("playerName", name)
+                    .uniqueResult();
+        }
     }
-
-    public static Long getTotalCountAllMatches(Session session) {
-        String hql = "select count(*) from Match";
-        return session.createQuery(hql, Long.class).uniqueResult();
-    }
+//        String hql = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
+//        return session.createQuery(hql, Long.class)
+//                .setParameter("playerName", playerName)
+//                .uniqueResult();
+//    }
+//
+//    public static Long getTotalCountAllMatches(Session session) {
+//        String hql = "select count(*) from Match";
+//        return session.createQuery(hql, Long.class).uniqueResult();
+//    }
 }

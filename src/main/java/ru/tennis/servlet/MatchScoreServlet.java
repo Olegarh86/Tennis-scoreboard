@@ -17,6 +17,7 @@ import ru.tennis.util.JspHelper;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @WebServlet(name = "match-score", urlPatterns = "/match-score")
 public class MatchScoreServlet extends HttpServlet {
@@ -46,7 +47,7 @@ public class MatchScoreServlet extends HttpServlet {
                 Transaction transaction = session.beginTransaction();
                 FinishedMatchesPersistenceService.persist(session, currentMatch);
                 List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, 0);
-                Long totalItems = FinishedMatchesPersistenceService.getTotalCountAllMatches(session);
+                Long totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session, Optional.empty());
                 transaction.commit();
 
                 int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
