@@ -28,7 +28,8 @@
         <p> Manage your tennis matches, record results, and track rankings </p>
         <div class="welcome-image"></div>
         <div class="form-container center">
-            <a class="start-match homepage-action-button new-match-button" href="new-match">
+            <a class="start-match homepage-action-button new-match-button"
+               href="${pageContext.request.contextPath}/new-match">
                 <p>Новая игра</p>
             </a>
             <br/>

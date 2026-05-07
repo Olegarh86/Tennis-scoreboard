@@ -6,17 +6,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OngoingMatchesService {
-    private static final Map<String, CurrentMatch> currentMatches = new HashMap<>();
+    private static final Map<String, CurrentMatch> ONGOING_MATCHES = new HashMap<>();
 
     public static void addMatch(CurrentMatch currentMatch) {
-        currentMatches.put(currentMatch.getUuid(), currentMatch);
+        ONGOING_MATCHES.put(currentMatch.getUuid(), currentMatch);
     }
 
     public static CurrentMatch getCurrentMatch(String uuid) {
-        return currentMatches.get(uuid);
+        return ONGOING_MATCHES.get(uuid);
     }
 
     public static void deleteMatch(CurrentMatch currentMatch) {
-        currentMatches.remove(currentMatch.getUuid());
+        ONGOING_MATCHES.remove(currentMatch.getUuid());
     }
 }

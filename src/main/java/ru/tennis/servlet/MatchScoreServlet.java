@@ -46,7 +46,7 @@ public class MatchScoreServlet extends HttpServlet {
                 Transaction transaction = session.beginTransaction();
                 FinishedMatchesPersistenceService.persist(session, currentMatch);
                 List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, 0);
-                Long totalItems = FinishedMatchesPersistenceService.getTotalCount(session);
+                Long totalItems = FinishedMatchesPersistenceService.getTotalCountAllMatches(session);
                 transaction.commit();
 
                 int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
@@ -54,8 +54,7 @@ public class MatchScoreServlet extends HttpServlet {
                 req.setAttribute("pageCount", pageCount);
                 req.setAttribute("allMatches", allFinishedMatches);
             }
-            resp.sendRedirect("/matches?page=1&filter_by_player_name=");
-//            req.getRequestDispatcher("/matches").forward(req, resp);
+            resp.sendRedirect(req.getContextPath() + "/matches?page=1&filter_by_player_name=");
         }
     }
 }

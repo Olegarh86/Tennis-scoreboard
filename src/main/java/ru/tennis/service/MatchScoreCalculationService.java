@@ -118,12 +118,12 @@ public class MatchScoreCalculationService {
     private static void checkEndMatch(CurrentMatch currentMatch) {
         int firstPlayerSetsWin = currentMatch.firstPlayer.set.ordinal();
         int secondPlayerSetsWin = currentMatch.secondPlayer.set.ordinal();
-        if (firstPlayerSetsWin == 5) {
+        if (firstPlayerSetsWin == 2) {
             currentMatch.setWinnerId(currentMatch.firstPlayer.id);
             currentMatch.endMatch = true;
         }
 
-        if (secondPlayerSetsWin == 5) {
+        if (secondPlayerSetsWin == 2) {
             currentMatch.setWinnerId(currentMatch.secondPlayer.id);
             currentMatch.endMatch = true;
         }

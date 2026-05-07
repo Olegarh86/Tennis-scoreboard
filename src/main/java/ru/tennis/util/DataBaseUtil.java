@@ -9,7 +9,7 @@ import ru.tennis.model.Player;
 public class DataBaseUtil {
 
 
-    public static void addNMatches(Session session, int n) {
+    public static void addNFinishedMatchesWithRandomPlayers(Session session, int n) {
 
         for (int i = 0; i < n; i++) {
             Player player1 = createRandomPlayer(session);
@@ -48,7 +48,7 @@ public class DataBaseUtil {
     }
 
     private static String getRandomName() {
-        double random = Math.random() * 100;
+        int random = (int) (Math.random() * 10000);
         return String.valueOf(random);
     }
 }

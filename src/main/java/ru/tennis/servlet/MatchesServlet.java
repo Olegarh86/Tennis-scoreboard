@@ -8,9 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import ru.tennis.exceptions.PageNotFoundException;
 import ru.tennis.model.Match;
-import ru.tennis.model.Player;
 import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.util.JspHelper;
 
@@ -46,11 +44,11 @@ public class MatchesServlet extends HttpServlet {
             List<Match> allMatches;
             Long totalItems;
 
-            if (playerName.length() > 1) {
-                totalItems = FinishedMatchesPersistenceService.getTotalCountWithName(session, playerName);
-                allMatches = FinishedMatchesPersistenceService.getMatchesByPlayerName(session, playerName, pageSize, offset);
+            if (!playerName.isEmpty()) {
+                totalItems = FinishedMatchesPersistenceService.getTotalCountMatchesByName(session, playerName);
+                allMatches = FinishedMatchesPersistenceService.getAllMatchesByName(session, playerName, pageSize, offset);
             } else {
-                totalItems = FinishedMatchesPersistenceService.getTotalCount(session);
+                totalItems = FinishedMatchesPersistenceService.getTotalCountAllMatches(session);
                 allMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, offset);
             }
 

@@ -5,7 +5,8 @@
 <html lang="en">
 <head>
     <title>Current currentMatch</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}css/style.css"/>
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/style.css"/>
 </head>
 <body>
 <%@include file="header.jsp" %>
@@ -13,6 +14,7 @@
     <h1>Current match</h1>
     <div class="current-match-image"></div>
     <div class="score">
+
         <table class="table">
             <tr class="result th">
                 <th>Player</th>
@@ -27,9 +29,11 @@
                 <td><c:out value="${currentMatch.firstPlayer.game}"/></td>
                 <td><c:out value="${currentMatch.firstPlayer.score.toString()}"/></td>
                 <td>
-                    <form action="match-score?uuid=${param.uuid}"
+                    <form action="${pageContext.request.contextPath}/match-score?uuid=${param.uuid}"
                           method="post">
-                        <button class="score-btn table-text" type="submit" name="winner"
+                        <button class="score-btn table-text"
+                                type="submit"
+                                name="winner"
                                 value="${currentMatch.firstPlayer.id}">
                             score
                         </button>
@@ -42,9 +46,10 @@
                 <td><c:out value="${currentMatch.secondPlayer.game}"/></td>
                 <td><c:out value="${currentMatch.secondPlayer.score.toString()}"/></td>
                 <td>
-                    <form action="match-score?uuid=${param.uuid}"
+                    <form action="${pageContext.request.contextPath}/match-score?uuid=${param.uuid}"
                           method="post">
-                        <button class="score-btn table-text" type="submit" name="winner"
+                        <button class="score-btn table-text"
+                                type="submit" name="winner"
                                 value="${currentMatch.secondPlayer.id}">
                             score
                         </button>

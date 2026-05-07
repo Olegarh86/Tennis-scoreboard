@@ -9,8 +9,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import ru.tennis.CurrentMatch;
-import ru.tennis.model.Match;
 import ru.tennis.model.Player;
+import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.DataBaseUtil;
 import ru.tennis.util.JspHelper;
@@ -32,28 +32,14 @@ public class NewMatchServlet extends HttpServlet {
         SessionFactory sessionFactory = (SessionFactory) getServletContext().getAttribute("sessionFactory");
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            DataBaseUtil.addNMatches(session, 21);
-            Player player1 = getPlayer(session, playerName1);
-            Player player2 = getPlayer(session, playerName2);
+            DataBaseUtil.addNFinishedMatchesWithRandomPlayers(session, 21);
+            Player player1 = FinishedMatchesPersistenceService.getPlayer(session, playerName1);
+            Player player2 = FinishedMatchesPersistenceService.getPlayer(session, playerName2);
 
             CurrentMatch currentMatch = new CurrentMatch(player1, player2);
             OngoingMatchesService.addMatch(currentMatch);
             transaction.commit();
-            resp.sendRedirect("/match-score?uuid=" + currentMatch.uuid);
+            resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + currentMatch.uuid);
         }
-    }
-
-    private Player getPlayer(Session session, String name) {
-
-        Player player = session.createQuery("select p from Player p where p.name = :name", Player.class)
-                .setParameter("name", name)
-                .uniqueResult();
-
-        if (player == null) {
-            player = Player.builder().name(name).build();
-            session.persist(player);
-        }
-
-        return player;
     }
 }

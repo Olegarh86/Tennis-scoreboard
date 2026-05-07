@@ -145,7 +145,7 @@ public class MatchScoreCalculationTest {
         currentMatch.secondPlayer.setScore(new Score(0));
         currentMatch.firstPlayer.setGame(Game.SIX);
         currentMatch.secondPlayer.setGame(Game.FIVE);
-        currentMatch.firstPlayer.setSet(Set.FOUR);
+        currentMatch.firstPlayer.setSet(Set.ONE);
         currentMatch.secondPlayer.setSet(Set.ZERO);
         currentMatch.tieBreak = false;
         MatchScoreCalculationService.updateMatchState(currentMatch, "1");
@@ -154,7 +154,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, currentMatch.secondPlayer.score.getScore()),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(5, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
+                () -> assertEquals(2, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
                 () -> assertEquals(1, currentMatch.winnerId),
                 () -> assertEquals(false, currentMatch.tieBreak),
