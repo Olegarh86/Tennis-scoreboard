@@ -46,7 +46,8 @@ public class MatchScoreServlet extends HttpServlet {
                 int pageSize = 10;
                 Transaction transaction = session.beginTransaction();
                 FinishedMatchesPersistenceService.persist(session, currentMatch);
-                List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, 0);
+                List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session,
+                 Optional.empty(), pageSize, 0);
                 Long totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session, Optional.empty());
                 transaction.commit();
 

@@ -58,41 +58,37 @@ public class FinishedMatchesPersistenceService {
         }
     }
 
-    public static List<Match> getAllMatches(Session session, int pageSize, int offset) {
-        String query = "from Match order by id LIMIT %d OFFSET %d";
-        return session.createQuery(String.format(query, pageSize, offset), Match.class).list();
-    }
-
-    public static List<Match> getAllMatchesByName(Session session, String playerName, int pageSize, int offset) {
-        String query = "select m from Match m where m.player1.name = :playerName OR m.player2.name = :playerName " +
-                       "order by id LIMIT %d OFFSET %d";
-        String finalQuery = String.format(query, pageSize, offset);
-        return session.createQuery(finalQuery, Match.class)
-                .setParameter("playerName", playerName)
-                .list();
-    }
-
-    public static Long getTotalNumberOfMatches(Session session, Optional <String> playerName) {
-        String hql;
+    public static List<Match> getAllMatches(Session session, Optional<String> playerName, int pageSize, int offset) {
+        String query;
         if (playerName.isEmpty()) {
-            hql = "select count(*) from Match";
-            return session.createQuery(hql, Long.class).uniqueResult();
+            query = "select m from Match m order by id LIMIT :pageSize OFFSET :offset";
+            return session.createQuery(query, Match.class)
+                    .setParameter("pageSize", pageSize)
+                    .setParameter("offset", offset)
+                    .list();
         } else {
             String name = playerName.get();
-            hql = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
-            return session.createQuery(hql, Long.class)
+            query = "select m from Match m where m.player1.name = :playerName OR m.player2.name = :playerName " +
+                    "order by id LIMIT :pageSize OFFSET :offset";
+            return session.createQuery(query, Match.class)
+                    .setParameter("playerName", name)
+                    .setParameter("pageSize", pageSize)
+                    .setParameter("offset", offset)
+                    .list();
+        }
+    }
+
+    public static Long getTotalNumberOfMatches(Session session, Optional<String> playerName) {
+        String query;
+        if (playerName.isEmpty()) {
+            query = "select count(*) from Match";
+            return session.createQuery(query, Long.class).uniqueResult();
+        } else {
+            String name = playerName.get();
+            query = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
+            return session.createQuery(query, Long.class)
                     .setParameter("playerName", name)
                     .uniqueResult();
         }
     }
-//        String hql = "select count(*) from Match where player1.name = :playerName OR player2.name = :playerName";
-//        return session.createQuery(hql, Long.class)
-//                .setParameter("playerName", playerName)
-//                .uniqueResult();
-//    }
-//
-//    public static Long getTotalCountAllMatches(Session session) {
-//        String hql = "select count(*) from Match";
-//        return session.createQuery(hql, Long.class).uniqueResult();
-//    }
 }

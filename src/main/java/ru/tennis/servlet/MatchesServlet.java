@@ -47,14 +47,15 @@ public class MatchesServlet extends HttpServlet {
 
             if (playerName.isEmpty()) {
                 totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session, Optional.empty());
-                allMatches = FinishedMatchesPersistenceService.getAllMatches(session, pageSize, offset);
+                allMatches = FinishedMatchesPersistenceService.getAllMatches(session, Optional.empty(),
+                        pageSize, offset);
             } else {
-                totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session,
-                        Optional.of(playerName));
-                allMatches = FinishedMatchesPersistenceService.getAllMatchesByName(session, playerName, pageSize, offset);
+                totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session,Optional.of(playerName));
+                allMatches = FinishedMatchesPersistenceService.getAllMatches(session, Optional.of(playerName), pageSize,
+                        offset);
             }
-
             transaction.commit();
+
             int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
 
             if (pageCount < 1) {
