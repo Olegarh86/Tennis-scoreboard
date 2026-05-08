@@ -1,7 +1,9 @@
 package ru.tennis.service;
 
 import ru.tennis.CurrentMatch;
+import ru.tennis.dto.MatchScoreDto;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +14,9 @@ public class OngoingMatchesService {
         ONGOING_MATCHES.put(currentMatch.getUuid(), currentMatch);
     }
 
-    public static CurrentMatch getCurrentMatch(String uuid) {
-        return ONGOING_MATCHES.get(uuid);
+    public static MatchScoreDto getCurrentMatch(String uuid) {
+        CurrentMatch currentMatch = ONGOING_MATCHES.get(uuid);
+        return new MatchScoreDto(currentMatch, 0, 0, Collections.emptyList());
     }
 
     public static void deleteMatch(CurrentMatch currentMatch) {

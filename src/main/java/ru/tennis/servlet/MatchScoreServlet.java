@@ -5,26 +5,22 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import ru.tennis.CurrentMatch;
-import ru.tennis.model.Match;
-import ru.tennis.service.FinishedMatchesPersistenceService;
-import ru.tennis.service.MatchScoreCalculationService;
+import ru.tennis.dto.MatchScoreDto;
+import ru.tennis.service.MatchScoreController;
 import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @WebServlet(name = "match-score", urlPatterns = "/match-score")
 public class MatchScoreServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        CurrentMatch currentMatch = OngoingMatchesService.getCurrentMatch(req.getParameter("uuid"));
-        req.setAttribute("currentMatch", currentMatch);
+        String uuid = req.getParameter("uuid");
+        MatchScoreDto dto = OngoingMatchesService.getCurrentMatch(uuid);
+        req.setAttribute("currentMatch", dto.currentMatch());
         req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
     }
 
@@ -33,30 +29,15 @@ public class MatchScoreServlet extends HttpServlet {
         String winnerId = req.getParameter("winner");
         String uuid = req.getParameter("uuid");
 
-        CurrentMatch currentMatch = OngoingMatchesService.getCurrentMatch(uuid);
-        MatchScoreCalculationService.updateMatchState(currentMatch, winnerId);
-
-        CurrentMatch matchAfterUpdate = OngoingMatchesService.getCurrentMatch(uuid);
-        if (matchAfterUpdate != null) {
-            req.setAttribute("currentMatch", matchAfterUpdate);
-            req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
-        } else {
-            SessionFactory sessionFactory = (SessionFactory) getServletContext().getAttribute("sessionFactory");
-            try (Session session = sessionFactory.openSession()) {
-                int pageSize = 10;
-                Transaction transaction = session.beginTransaction();
-                FinishedMatchesPersistenceService.persist(session, currentMatch);
-                List<Match> allFinishedMatches = FinishedMatchesPersistenceService.getAllMatches(session,
-                 Optional.empty(), pageSize, 0);
-                Long totalItems = FinishedMatchesPersistenceService.getTotalNumberOfMatches(session, Optional.empty());
-                transaction.commit();
-
-                int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
-                req.setAttribute("currentPage", 1);
-                req.setAttribute("pageCount", pageCount);
-                req.setAttribute("allMatches", allFinishedMatches);
-            }
+        MatchScoreDto dto = MatchScoreController.updateMatch(winnerId, uuid);
+        if (dto.currentMatch() == null) {
+            req.setAttribute("currentPage", dto.currentPage());
+            req.setAttribute("pageCount", dto.pageCount());
+            req.setAttribute("allMatches", dto.allFinishedMatches());
             resp.sendRedirect(req.getContextPath() + "/matches?page=1&filter_by_player_name=");
+        } else {
+            req.setAttribute("currentMatch", dto.currentMatch());
+            req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
         }
     }
 }

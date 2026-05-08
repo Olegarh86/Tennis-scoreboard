@@ -8,7 +8,6 @@ import ru.tennis.model.Player;
 @UtilityClass
 public class DataBaseUtil {
 
-
     public static void addNFinishedMatchesWithRandomPlayers(Session session, int n) {
 
         for (int i = 0; i < n; i++) {

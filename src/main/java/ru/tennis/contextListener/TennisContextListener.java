@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebListener;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import ru.tennis.model.Player;
+import ru.tennis.util.HibernateUtil;
 
 @WebListener
 public class TennisContextListener implements ServletContextListener {
@@ -19,6 +20,7 @@ public class TennisContextListener implements ServletContextListener {
         cfg.configure();
         SessionFactory sessionFactory = cfg.buildSessionFactory();
         sce.getServletContext().setAttribute("sessionFactory", sessionFactory);
+        HibernateUtil.initSessionFactory(sessionFactory);
     }
 
     @Override
