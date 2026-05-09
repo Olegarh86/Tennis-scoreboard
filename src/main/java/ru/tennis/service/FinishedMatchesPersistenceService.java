@@ -54,7 +54,7 @@ public class FinishedMatchesPersistenceService {
         Match match = getMatch(session, player1, player2, winner);
 
         if (match == null) {
-            match = createNewMatch(session, player1, player2, winner);
+            createNewMatch(session, player1, player2, winner);
         }
     }
 
@@ -67,11 +67,10 @@ public class FinishedMatchesPersistenceService {
                 .uniqueResult();
     }
 
-    private static Match createNewMatch(Session session, Player player1, Player player2, Player winner) {
+    private static void createNewMatch(Session session, Player player1, Player player2, Player winner) {
         Match match;
         match = Match.builder().player1(player1).player2(player2).winner(winner).build();
         session.persist(match);
-        return match;
     }
 
     public static List<Match> getAllMatches(Session session, Optional<String> playerName, int pageSize, int offset) {

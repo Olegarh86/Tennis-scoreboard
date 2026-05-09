@@ -5,7 +5,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ru.tennis.CurrentMatch;
 import ru.tennis.dto.MatchScoreDto;
 import ru.tennis.service.MatchScoreController;
 import ru.tennis.service.OngoingMatchesService;

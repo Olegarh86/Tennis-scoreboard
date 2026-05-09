@@ -1,6 +1,5 @@
 package ru.tennis.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import ru.tennis.CurrentMatch;

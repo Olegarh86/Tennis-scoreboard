@@ -18,25 +18,31 @@ public class MatchesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String playerName = req.getParameter("filter_by_player_name");
         String pageNumber = req.getParameter("page");
-        MatchesDto dto = MatchesController.getMatches(playerName, pageNumber);
 
-        if (dto.page() <= 0) {
-            req.setAttribute("filter_by_player_name", dto.playerName());
-            req.setAttribute("page", 1);
-            req.getRequestDispatcher(String.format("/matches?page=%s&filter_by_player_name=%s", 1, dto.playerName()))
-                .forward(req, resp);
-        }
+        MatchesDto dto = MatchesController.getMatchesDto(playerName, getPage(pageNumber));
 
         if (dto.pageCount() < 1) {
-            req.getRequestDispatcher(String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName()))
-                    .forward(req, resp);
+            String request = String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName());
+            req.getRequestDispatcher(request).forward(req, resp);
         }
         req.setAttribute("filter_by_player_name", dto.playerName());
         req.setAttribute("page", dto.page());
         req.setAttribute("pageCount", dto.pageCount());
         req.setAttribute("allMatches", dto.allMatches());
-
         req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
+    }
+
+    private static int getPage(String pageNumber) {
+        int page = 1;
+
+        if (!pageNumber.isEmpty()) {
+            page = Integer.parseInt(pageNumber);
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+        return page;
     }
 }
 
