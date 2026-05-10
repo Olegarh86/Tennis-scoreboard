@@ -14,8 +14,11 @@ public class OngoingMatchesService {
         ONGOING_MATCHES.put(currentMatch.getUuid(), currentMatch);
     }
 
-    public static MatchScoreDto getCurrentMatch(String uuid) {
+    public static MatchScoreDto getCurrentMatchDto(String uuid) {
         CurrentMatch currentMatch = ONGOING_MATCHES.get(uuid);
+        if (currentMatch == null) {
+            return new MatchScoreDto(new CurrentMatch(), 0, 0, Collections.emptyList());
+        }
         return new MatchScoreDto(currentMatch, 0, 0, Collections.emptyList());
     }
 

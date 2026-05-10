@@ -18,7 +18,9 @@ public class MatchScoreServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String uuid = req.getParameter("uuid");
-        MatchScoreDto dto = OngoingMatchesService.getCurrentMatch(uuid);
+
+        MatchScoreDto dto = OngoingMatchesService.getCurrentMatchDto(uuid);
+
         req.setAttribute("currentMatch", dto.currentMatch());
         req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
     }
@@ -29,7 +31,8 @@ public class MatchScoreServlet extends HttpServlet {
         String uuid = req.getParameter("uuid");
 
         MatchScoreDto dto = MatchScoreController.updateMatch(winnerId, uuid);
-        if (dto.currentMatch() == null) {
+
+        if (!uuid.equals(dto.currentMatch().uuid)) {
             req.setAttribute("currentPage", dto.currentPage());
             req.setAttribute("pageCount", dto.pageCount());
             req.setAttribute("allMatches", dto.allFinishedMatches());

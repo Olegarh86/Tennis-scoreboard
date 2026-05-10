@@ -5,9 +5,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ru.tennis.CurrentMatch;
+import ru.tennis.dto.MatchCreateDto;
 import ru.tennis.service.MatchCreator;
-import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
 
 import java.io.IOException;
@@ -25,10 +24,9 @@ public class NewMatchServlet extends HttpServlet {
         String playerName1 = req.getParameter("Имя игрока 1");
         String playerName2 = req.getParameter("Имя игрока 2");
 
-        CurrentMatch currentMatch = MatchCreator.createMatch(playerName1, playerName2);
-        OngoingMatchesService.addMatch(currentMatch);
+        MatchCreateDto dto = MatchCreator.createNewCurrentMatch(playerName1, playerName2);
 
-        resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + currentMatch.uuid);
+        resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + dto.uuid());
     }
 }
 
