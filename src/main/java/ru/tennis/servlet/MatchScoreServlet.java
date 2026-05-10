@@ -32,14 +32,14 @@ public class MatchScoreServlet extends HttpServlet {
 
         MatchScoreDto dto = MatchScoreController.updateMatch(winnerId, uuid);
 
-        if (!uuid.equals(dto.currentMatch().uuid)) {
+        if (uuid.equals(dto.currentMatch().uuid)) {
+            req.setAttribute("currentMatch", dto.currentMatch());
+            req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
+        } else {
             req.setAttribute("currentPage", dto.currentPage());
             req.setAttribute("pageCount", dto.pageCount());
             req.setAttribute("allMatches", dto.allFinishedMatches());
             resp.sendRedirect(req.getContextPath() + "/matches?page=1&filter_by_player_name=");
-        } else {
-            req.setAttribute("currentMatch", dto.currentMatch());
-            req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
         }
     }
 }

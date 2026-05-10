@@ -24,7 +24,9 @@ public class MatchScoreController {
         MatchScoreDto dtoAfterUpdate = OngoingMatchesService.getCurrentMatchDto(uuid);
         CurrentMatch matchAfterUpdate = dtoAfterUpdate.currentMatch();
 
-        if (!uuid.equals(matchAfterUpdate.uuid)) {
+        if (uuid.equals(matchAfterUpdate.uuid)) {
+            return new MatchScoreDto(currentMatch, 0, 0, Collections.emptyList());
+        } else {
             Session session = HibernateUtil.getSession();
             Transaction transaction = session.beginTransaction();
             try (session) {
@@ -39,8 +41,6 @@ public class MatchScoreController {
             }
             int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
             return new MatchScoreDto(matchAfterUpdate, 1, pageCount, allFinishedMatches);
-        } else {
-            return new MatchScoreDto(currentMatch, 0, 0, Collections.emptyList());
         }
     }
 }
