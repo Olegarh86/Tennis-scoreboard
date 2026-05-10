@@ -7,6 +7,7 @@ import ru.tennis.dto.MatchScoreDto;
 import ru.tennis.exceptions.SaveFinishedMatchException;
 import ru.tennis.model.Match;
 import ru.tennis.util.HibernateUtil;
+import ru.tennis.util.TennisCalculator;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,7 @@ public class MatchScoreController {
                 transaction.rollback();
                 throw new SaveFinishedMatchException(e.getMessage());
             }
-            int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
+            int pageCount = TennisCalculator.pageCountCalculate(totalItems, pageSize);
             return new MatchScoreDto(matchAfterUpdate, 1, pageCount, allFinishedMatches);
         }
     }

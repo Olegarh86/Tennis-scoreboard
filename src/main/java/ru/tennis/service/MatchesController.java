@@ -6,6 +6,7 @@ import ru.tennis.dto.MatchesDto;
 import ru.tennis.exceptions.GetMatchesException;
 import ru.tennis.model.Match;
 import ru.tennis.util.HibernateUtil;
+import ru.tennis.util.TennisCalculator;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +45,7 @@ public class MatchesController {
             page = page - 1;
             return new MatchesDto(playerName, page, 0, Collections.emptyList());
         }
-        int pageCount = (int) Math.ceil(totalItems / (double) pageSize);
+        int pageCount = TennisCalculator.pageCountCalculate(totalItems, pageSize);
 
         if (page > pageCount) {
             page = pageCount;
