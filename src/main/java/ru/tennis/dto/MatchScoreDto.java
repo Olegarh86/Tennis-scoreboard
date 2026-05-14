@@ -1,6 +1,5 @@
 package ru.tennis.dto;
 
-import ru.tennis.CurrentMatch;
 import ru.tennis.model.Match;
 
 import java.util.List;

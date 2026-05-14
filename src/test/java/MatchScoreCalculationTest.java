@@ -1,7 +1,11 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.tennis.*;
+import ru.tennis.dto.CurrentMatch;
+import ru.tennis.gameState.Game;
+import ru.tennis.gameState.Score;
+import ru.tennis.gameState.Set;
+import ru.tennis.gameState.TieBreak;
 import ru.tennis.model.Player;
 import ru.tennis.service.MatchScoreCalculationService;
 
@@ -29,7 +33,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -47,7 +51,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -67,7 +71,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(1, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -87,7 +91,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(6, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(true, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -110,7 +114,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(1, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -133,7 +137,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(6, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(true, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -156,7 +160,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(2, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(1, currentMatch.winnerId),
+                () -> assertEquals(1, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(true, currentMatch.endMatch)
         );
@@ -174,7 +178,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -192,7 +196,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -210,7 +214,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -228,7 +232,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );
@@ -246,7 +250,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getSet().toString())),
-                () -> assertEquals(0, currentMatch.winnerId),
+                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(false, currentMatch.endMatch)
         );

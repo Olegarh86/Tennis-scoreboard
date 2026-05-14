@@ -1,11 +1,15 @@
 package ru.tennis.service;
 
-import ru.tennis.*;
+import ru.tennis.dto.CurrentMatch;
+import ru.tennis.dto.MatchScoreDto;
+import ru.tennis.gameState.Game;
+import ru.tennis.gameState.Score;
+import ru.tennis.gameState.TieBreak;
 
 
 public class MatchScoreCalculationService {
 
-    public static void updateMatchState(CurrentMatch currentMatch, String playerGetPoint) {
+    public static MatchScoreDto updateMatchState(CurrentMatch currentMatch, String playerGetPoint) {
         Integer idPlayerGetPoint = Integer.parseInt(playerGetPoint);
 
         if (currentMatch.firstPlayer.id.equals(idPlayerGetPoint)) {
@@ -27,6 +31,7 @@ public class MatchScoreCalculationService {
                 OngoingMatchesService.addMatch(currentMatch);
             }
         }
+        return OngoingMatchesService.getCurrentMatchDto(currentMatch.uuid);
     }
 
     private static void checkEndGame(CurrentMatch currentMatch) {
@@ -118,13 +123,15 @@ public class MatchScoreCalculationService {
     private static void checkEndMatch(CurrentMatch currentMatch) {
         int firstPlayerSetsWin = currentMatch.firstPlayer.set.ordinal();
         int secondPlayerSetsWin = currentMatch.secondPlayer.set.ordinal();
+
         if (firstPlayerSetsWin == 2) {
-            currentMatch.setWinnerId(currentMatch.firstPlayer.id);
+            currentMatch.winner.setWinnerId(currentMatch.firstPlayer.id);
+            currentMatch.winner.setWinnerName(currentMatch.firstPlayer.name);
             currentMatch.endMatch = true;
         }
-
         if (secondPlayerSetsWin == 2) {
-            currentMatch.setWinnerId(currentMatch.secondPlayer.id);
+            currentMatch.winner.setWinnerId(currentMatch.secondPlayer.id);
+            currentMatch.winner.setWinnerName(currentMatch.secondPlayer.name);
             currentMatch.endMatch = true;
         }
     }

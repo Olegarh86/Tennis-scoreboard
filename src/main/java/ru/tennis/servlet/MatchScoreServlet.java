@@ -30,7 +30,7 @@ public class MatchScoreServlet extends HttpServlet {
         String winnerId = req.getParameter("winner");
         String uuid = req.getParameter("uuid");
 
-        MatchScoreDto dto = MatchScoreController.updateMatch(winnerId, uuid);
+        MatchScoreDto dto = MatchScoreController.updateCurrentMatch(winnerId, uuid);
 
         if (uuid.equals(dto.currentMatch().uuid)) {
             req.setAttribute("currentMatch", dto.currentMatch());

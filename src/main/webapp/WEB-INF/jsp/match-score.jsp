@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<jsp:useBean id="currentMatch" scope="request" class="ru.tennis.CurrentMatch"/>
+<jsp:useBean id="currentMatch" scope="request" class="ru.tennis.dto.CurrentMatch"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>

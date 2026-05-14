@@ -1,8 +1,9 @@
-package ru.tennis;
+package ru.tennis.dto;
 
 import lombok.*;
 
 import java.util.UUID;
+
 import ru.tennis.model.Player;
 
 @Data
@@ -14,7 +15,7 @@ public class CurrentMatch {
     public String uuid;
     public FirstPlayer firstPlayer;
     public SecondPlayer secondPlayer;
-    public Integer winnerId;
+    public Winner winner;
     public Boolean tieBreak;
     public Boolean endMatch;
 
@@ -22,7 +23,7 @@ public class CurrentMatch {
         this.uuid = UUID.randomUUID().toString();
         this.firstPlayer = new FirstPlayer(firstPlayer);
         this.secondPlayer = new SecondPlayer(secondPlayer);
-        this.winnerId = 0;
+        this.winner = new Winner(new Player());
         this.tieBreak = false;
         this.endMatch = false;
     }

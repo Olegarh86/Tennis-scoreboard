@@ -1,4 +1,4 @@
-package ru.tennis;
+package ru.tennis.gameState;
 
 import lombok.Getter;
 

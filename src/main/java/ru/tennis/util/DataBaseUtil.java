@@ -2,6 +2,7 @@ package ru.tennis.util;
 
 import lombok.experimental.UtilityClass;
 import org.hibernate.Session;
+import ru.tennis.dao.FinishedMatchesPersistenceService;
 import ru.tennis.model.Match;
 import ru.tennis.model.Player;
 
@@ -9,7 +10,6 @@ import ru.tennis.model.Player;
 public class DataBaseUtil {
 
     public static void addNFinishedMatchesWithRandomPlayers(Session session, int n) {
-
         for (int i = 0; i < n; i++) {
             Player player1 = createRandomPlayer(session);
             Player player2 = createRandomPlayer(session);
@@ -35,9 +35,7 @@ public class DataBaseUtil {
             randomName = getRandomName();
             player = findRandomPlayerInDB(session, randomName);
         }
-        Player randomPlayer = Player.builder().name(randomName).build();
-        session.persist(randomPlayer);
-        return randomPlayer;
+        return new FinishedMatchesPersistenceService().createNewPlayer(session, randomName);
     }
 
     private static Player findRandomPlayerInDB(Session session, String randomName) {

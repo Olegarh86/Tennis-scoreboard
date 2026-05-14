@@ -1,11 +1,12 @@
 package ru.tennis.service;
 
-import ru.tennis.CurrentMatch;
+import ru.tennis.dto.CurrentMatch;
 import ru.tennis.dto.MatchScoreDto;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class OngoingMatchesService {
     private static final Map<String, CurrentMatch> ONGOING_MATCHES = new HashMap<>();
@@ -15,11 +16,8 @@ public class OngoingMatchesService {
     }
 
     public static MatchScoreDto getCurrentMatchDto(String uuid) {
-        CurrentMatch currentMatch = ONGOING_MATCHES.get(uuid);
-        if (currentMatch == null) {
-            return new MatchScoreDto(new CurrentMatch(), 0, 0, Collections.emptyList());
-        }
-        return new MatchScoreDto(currentMatch, 0, 0, Collections.emptyList());
+        Optional<CurrentMatch> mayBeCurrentMatch = Optional.ofNullable(ONGOING_MATCHES.get(uuid));
+        return new MatchScoreDto(mayBeCurrentMatch.orElse(new CurrentMatch()), 0, 0, Collections.emptyList());
     }
 
     public static void deleteMatch(CurrentMatch currentMatch) {

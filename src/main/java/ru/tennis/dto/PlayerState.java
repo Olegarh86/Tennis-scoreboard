@@ -1,19 +1,24 @@
-package ru.tennis;
+package ru.tennis.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.tennis.gameState.Game;
+import ru.tennis.gameState.Score;
+import ru.tennis.gameState.Set;
 import ru.tennis.model.Player;
 
 @Getter
 @Setter
-public class PlayerOrder {
-    public final Integer id;
-    public final String name;
+@NoArgsConstructor
+public class PlayerState {
+    public Integer id;
+    public String name;
     public Score score;
     public Game game;
     public Set set;
 
-    PlayerOrder(Player player) {
+    PlayerState(Player player) {
         this.id = player.getId();
         this.name = player.getName();
         this.score = new Score(0);

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.dto.MatchesDto;
 import ru.tennis.service.MatchesController;
 import ru.tennis.util.JspHelper;
+import ru.tennis.util.TennisUtil;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ public class MatchesServlet extends HttpServlet {
         String playerName = req.getParameter("filter_by_player_name");
         String pageNumber = req.getParameter("page");
 
-        MatchesDto dto = MatchesController.getMatchesDto(playerName, getPage(pageNumber));
+        MatchesDto dto = MatchesController.getMatchesDto(playerName, TennisUtil.parsePage(pageNumber));
 
         if (dto.pageCount() < 1) {
             String request = String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName());
@@ -30,19 +31,6 @@ public class MatchesServlet extends HttpServlet {
         req.setAttribute("pageCount", dto.pageCount());
         req.setAttribute("allMatches", dto.allMatches());
         req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
-    }
-
-    private static int getPage(String pageNumber) {
-        int page = 1;
-
-        if (!pageNumber.isEmpty()) {
-            page = Integer.parseInt(pageNumber);
-        }
-
-        if (page < 1) {
-            page = 1;
-        }
-        return page;
     }
 }
 

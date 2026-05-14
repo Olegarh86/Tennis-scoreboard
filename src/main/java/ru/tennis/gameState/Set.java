@@ -1,4 +1,4 @@
-package ru.tennis;
+package ru.tennis.gameState;
 
 public enum Set {
     ZERO(0),

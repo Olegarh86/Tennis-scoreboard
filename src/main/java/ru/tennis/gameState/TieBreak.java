@@ -1,6 +1,6 @@
-package ru.tennis;
+package ru.tennis.gameState;
 
-public class TieBreak extends Score{
+public class TieBreak extends Score {
     public TieBreak(Integer score) {
         super(score);
     }
