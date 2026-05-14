@@ -2,7 +2,7 @@ package ru.tennis.util;
 
 import lombok.experimental.UtilityClass;
 import org.hibernate.Session;
-import ru.tennis.dao.FinishedMatchesPersistenceService;
+import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.model.Match;
 import ru.tennis.model.Player;
 

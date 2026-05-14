@@ -124,15 +124,23 @@ public class MatchScoreCalculationService {
         int firstPlayerSetsWin = currentMatch.firstPlayer.set.ordinal();
         int secondPlayerSetsWin = currentMatch.secondPlayer.set.ordinal();
 
-        if (firstPlayerSetsWin == 2) {
+        if (firstPlayerSetsWin > 1 || secondPlayerSetsWin > 1) {
+            currentMatch.endMatch = true;
+            determineWinner(currentMatch);
+        }
+    }
+
+    private static void determineWinner(CurrentMatch currentMatch) {
+        int firstPlayerSetsWin = currentMatch.firstPlayer.set.ordinal();
+        int secondPlayerSetsWin = currentMatch.secondPlayer.set.ordinal();
+
+        if (firstPlayerSetsWin > 1) {
             currentMatch.winner.setWinnerId(currentMatch.firstPlayer.id);
             currentMatch.winner.setWinnerName(currentMatch.firstPlayer.name);
-            currentMatch.endMatch = true;
         }
-        if (secondPlayerSetsWin == 2) {
+        if (secondPlayerSetsWin > 1) {
             currentMatch.winner.setWinnerId(currentMatch.secondPlayer.id);
             currentMatch.winner.setWinnerName(currentMatch.secondPlayer.name);
-            currentMatch.endMatch = true;
         }
     }
 }

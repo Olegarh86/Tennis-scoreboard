@@ -1,6 +1,8 @@
-package ru.tennis.dao;
+package ru.tennis.service;
 
 import org.hibernate.Session;
+import ru.tennis.dao.TennisDao;
+import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.CurrentMatch;
 import ru.tennis.model.Match;
 import ru.tennis.model.Player;

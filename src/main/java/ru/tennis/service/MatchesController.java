@@ -2,7 +2,6 @@ package ru.tennis.service;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import ru.tennis.dao.FinishedMatchesPersistenceService;
 import ru.tennis.dto.MatchesDto;
 import ru.tennis.exceptions.GetMatchesException;
 import ru.tennis.model.Match;
