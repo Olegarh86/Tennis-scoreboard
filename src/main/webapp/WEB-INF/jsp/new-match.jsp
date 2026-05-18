@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,13 +19,22 @@
           action="${pageContext.request.contextPath}/new-match"
           method="post">
 
+        <div style="color: darkred">
+            <c:if test="${not empty requestScope.errors}">
+                <c:forEach var="errors" items="${requestScope.errors}">
+                    <li>${errors}</li>
+                </c:forEach>
+            </c:if>
+        </div>
+
         <p class="label-player">Имя игрока 1 </p>
 
         <label>
             <input class="input-player"
                    type="text"
                    name="Имя игрока 1"
-                   placeholder="Введите имя">
+                   placeholder="Введите имя"
+                   value="${requestScope.playerName1}">
         </label>
 
         <p class="label-player">Имя игрока 2 </p>
@@ -33,7 +43,8 @@
             <input class="input-player"
                    type="text"
                    name="Имя игрока 2"
-                   placeholder="Введите имя">
+                   placeholder="Введите имя"
+                   value="${requestScope.playerName2}">
         </label>
 
         <button class="form-button">

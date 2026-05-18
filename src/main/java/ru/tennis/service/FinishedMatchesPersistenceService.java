@@ -2,7 +2,6 @@ package ru.tennis.service;
 
 import org.hibernate.Session;
 import ru.tennis.dao.TennisDao;
-import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.CurrentMatch;
 import ru.tennis.model.Match;
 import ru.tennis.model.Player;
@@ -11,7 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class FinishedMatchesPersistenceService {
-    private final TennisDao tennisDao = new TennisDaoImpl();
+    private final TennisDao tennisDao;
+
+    public FinishedMatchesPersistenceService(TennisDao tennisDao) {
+        this.tennisDao = tennisDao;
+    }
 
     public Player createNewPlayer(Session session, String name) {
         return tennisDao.createNewTennisPlayer(session, name);

@@ -8,12 +8,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.dto.MatchCreateDto;
 import ru.tennis.service.MatchCreator;
 import ru.tennis.util.JspHelper;
+import ru.tennis.validation.PlayerNamesValidator;
+import ru.tennis.validation.ValidationResult;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @WebServlet(name = "new-match", urlPatterns = "/new-match")
 public class NewMatchServlet extends HttpServlet {
+    private final PlayerNamesValidator validator = new PlayerNamesValidator();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
@@ -24,9 +29,18 @@ public class NewMatchServlet extends HttpServlet {
         String playerName1 = req.getParameter("Имя игрока 1");
         String playerName2 = req.getParameter("Имя игрока 2");
 
-        MatchCreateDto dto = MatchCreator.createNewCurrentMatch(playerName1, playerName2);
+        ValidationResult validationResult = validator.validate(playerName1, playerName2);
 
-        resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + dto.uuid());
+        if (validationResult.hasErrors()) {
+            req.setAttribute("errors", validationResult.errors());
+            req.setAttribute("playerName1", validationResult.normalizedName1());
+            req.setAttribute("playerName2", validationResult.normalizedName2());
+            req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
+        } else {
+            MatchCreateDto dto = MatchCreator.createNewCurrentMatch(validationResult.normalizedName1(),
+                    validationResult.normalizedName2());
+            resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + dto.uuid());
+        }
     }
 }
 

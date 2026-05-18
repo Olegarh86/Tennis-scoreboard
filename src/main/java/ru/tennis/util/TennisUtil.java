@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 public class TennisUtil {
     @Getter
     private static final int pageSize = 7;
+
     public static int pageCountCalculate(Long totalItems, int pageSize) {
         return (int) Math.ceil(totalItems / (double) pageSize);
     }

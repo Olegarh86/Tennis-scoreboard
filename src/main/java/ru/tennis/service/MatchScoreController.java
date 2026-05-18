@@ -2,6 +2,7 @@ package ru.tennis.service;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.CurrentMatch;
 import ru.tennis.dto.MatchScoreDto;
 import ru.tennis.exceptions.SaveFinishedMatchException;
@@ -32,7 +33,7 @@ public class MatchScoreController {
             Session session = HibernateUtil.getSession();
             Transaction transaction = session.beginTransaction();
             try (session) {
-                FinishedMatchesPersistenceService service = new FinishedMatchesPersistenceService();
+                FinishedMatchesPersistenceService service = new FinishedMatchesPersistenceService(new TennisDaoImpl());
                 service.saveFinishedMatch(session, matchBeforeUpdate);
                 allFinishedMatches = service.getAllMatches(session, Optional.empty(), pageSize, 0);
                 totalItems = service.getTotalNumberOfMatches(session, Optional.empty());

@@ -2,6 +2,7 @@ package ru.tennis.service;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.MatchesDto;
 import ru.tennis.exceptions.GetMatchesException;
 import ru.tennis.model.Match;
@@ -22,7 +23,7 @@ public class MatchesController {
         Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
         try (session) {
-            FinishedMatchesPersistenceService service = new FinishedMatchesPersistenceService();
+            FinishedMatchesPersistenceService service = new FinishedMatchesPersistenceService(new TennisDaoImpl());
             if (playerName.isEmpty()) {
                 totalItems = service.getTotalNumberOfMatches(session, Optional.empty());
                 allMatches = service.getAllMatches(session, Optional.empty(),
