@@ -24,6 +24,9 @@ public class MatchScoreController {
         MatchScoreDto matchScoreDtoBeforeUpdate = OngoingMatchesService.getCurrentMatchDto(uuid);
         CurrentMatch matchBeforeUpdate = matchScoreDtoBeforeUpdate.currentMatch();
 
+        if (matchBeforeUpdate.firstPlayer == null || matchBeforeUpdate.secondPlayer == null) {
+            return new MatchScoreDto(matchBeforeUpdate, 0, 0, Collections.emptyList());
+        }
         MatchScoreDto dtoAfterUpdate = MatchScoreCalculationService.updateMatchState(matchBeforeUpdate, winnerId);
         CurrentMatch matchAfterUpdate = dtoAfterUpdate.currentMatch();
 

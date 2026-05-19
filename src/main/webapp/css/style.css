@@ -509,3 +509,13 @@ footer {
 .num-page.current {
     font-weight: bold;
 }
+
+/*Error page*/
+.error-image {
+    border-radius: 30px;
+    margin-top: 20px;
+    background-image: url('../images/error_image.png');
+    background-position: center;
+    min-height: 50vh;
+    background-size: cover;
+}

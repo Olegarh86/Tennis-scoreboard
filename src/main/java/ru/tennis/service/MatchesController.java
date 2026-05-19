@@ -43,10 +43,6 @@ public class MatchesController {
             return new MatchesDto(playerName, page, 1, Collections.emptyList());
         }
 
-        if (offset >= totalItems) {
-            page = page - 1;
-            return new MatchesDto(playerName, page, 0, Collections.emptyList());
-        }
         int pageCount = TennisUtil.pageCountCalculate(totalItems, pageSize);
 
         if (page > pageCount) {

@@ -7,6 +7,7 @@
     <title>Current currentMatch</title>
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/style.css"/>
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon1.ico" type="image/x-icon">
 </head>
 <body>
 <%@include file="header.jsp" %>

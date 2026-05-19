@@ -4,6 +4,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css"/>
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon1.ico" type="image/x-icon">
     <title>Tennis-scoreboard</title>
     <style>
         .new-match-button {

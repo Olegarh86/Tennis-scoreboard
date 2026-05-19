@@ -12,7 +12,6 @@ import ru.tennis.validation.PlayerNamesValidator;
 import ru.tennis.validation.ValidationResult;
 
 import java.io.IOException;
-import java.util.List;
 
 
 @WebServlet(name = "new-match", urlPatterns = "/new-match")

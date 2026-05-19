@@ -27,7 +27,8 @@ public class MatchesServlet extends HttpServlet {
 
         if (dto.pageCount() < 1) {
             String request = String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName());
-            req.getRequestDispatcher(request).forward(req, resp);
+            resp.sendRedirect(req.getContextPath() + request);
+            return;
         }
         req.setAttribute("filter_by_player_name", dto.playerName());
         req.setAttribute("page", dto.page());
