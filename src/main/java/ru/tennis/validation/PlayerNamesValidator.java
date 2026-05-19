@@ -6,6 +6,8 @@ import java.util.List;
 
 public class PlayerNamesValidator {
     private static final String ACCEPTABLE_SYMBOLS = "[A-Za-z' -]+";
+    private static final String MANY_SPACES = "\\s+";
+    private static final String ONE_SPACE = " ";
     private static final String ERROR_IMPOSSIBLE_SYMBOL = "The player's name must contain only Latin letters, spaces, hyphens or apostrophes";
     private static final String ERROR_NAMES_NOT_DIFFERENT = "Player can't play with yourself!";
     private static final String ERROR_LENGTH_NAME = "Player name length must be between 2 and 30 characters";
@@ -36,6 +38,7 @@ public class PlayerNamesValidator {
 
     public String normalizedPlayerName(String playerName) {
         String trimName = playerName.trim();
+        trimName = trimName.replaceAll(MANY_SPACES, ONE_SPACE);
         return WordUtils.capitalizeFully(trimName);
     }
 
