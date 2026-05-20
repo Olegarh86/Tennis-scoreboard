@@ -1,6 +1,6 @@
 package ru.tennis.gameState;
 
-public enum Set {
+public enum GameSet {
     ZERO(0),
     ONE(1),
     TWO(2),
@@ -10,11 +10,11 @@ public enum Set {
 
     private final Integer points;
 
-    Set(Integer points) {
+    GameSet(Integer points) {
         this.points = points;
     }
 
-    public Set next() {
+    public GameSet next() {
         return switch (this) {
             case ZERO -> ONE;
             case ONE -> TWO;

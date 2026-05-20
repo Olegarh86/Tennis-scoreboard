@@ -1,13 +1,19 @@
 package ru.tennis.servlet;
 
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ru.tennis.dao.TennisDao;
+import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.MatchCreateDto;
+import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.service.MatchCreator;
+import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
+import ru.tennis.util.RedirectHelper;
 import ru.tennis.validation.PlayerNamesValidator;
 import ru.tennis.validation.ValidationResult;
 
@@ -16,7 +22,17 @@ import java.io.IOException;
 
 @WebServlet(name = "new-match", urlPatterns = "/new-match")
 public class NewMatchServlet extends HttpServlet {
-    private final PlayerNamesValidator validator = new PlayerNamesValidator();
+    private PlayerNamesValidator validator;
+    private FinishedMatchesPersistenceService service;
+    private OngoingMatchesService ongoingMatchesService;
+
+    @Override
+    public void init(ServletConfig config) {
+        validator = new PlayerNamesValidator();
+        TennisDao dao = new TennisDaoImpl();
+        service = new FinishedMatchesPersistenceService(dao);
+        ongoingMatchesService = new OngoingMatchesService();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -36,9 +52,11 @@ public class NewMatchServlet extends HttpServlet {
             req.setAttribute("playerName2", validationResult.normalizedName2());
             req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
         } else {
-            MatchCreateDto dto = MatchCreator.createNewCurrentMatch(validationResult.normalizedName1(),
+            MatchCreateDto dto = MatchCreator.createNewCurrentMatch(ongoingMatchesService, service,
+                    validationResult.normalizedName1(),
                     validationResult.normalizedName2());
-            resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + dto.uuid());
+            String path = "/match-score?uuid=" + dto.uuid();
+            RedirectHelper.redirectResponse(req, resp, path);
         }
     }
 }

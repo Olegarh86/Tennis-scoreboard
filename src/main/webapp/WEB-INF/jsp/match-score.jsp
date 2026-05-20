@@ -26,7 +26,7 @@
             </tr>
             <tr class="player1 td table tr">
                 <td class="player1"><c:out value="${currentMatch.firstPlayer.name}"/></td>
-                <td><c:out value="${currentMatch.firstPlayer.set}"/></td>
+                <td><c:out value="${currentMatch.firstPlayer.gameSet}"/></td>
                 <td><c:out value="${currentMatch.firstPlayer.game}"/></td>
                 <td><c:out value="${currentMatch.firstPlayer.score.toString()}"/></td>
                 <td>
@@ -43,7 +43,7 @@
             </tr>
             <tr class="player2 td table tr">
                 <td class="player2"><c:out value="${currentMatch.secondPlayer.name}"/></td>
-                <td><c:out value="${currentMatch.secondPlayer.set}"/></td>
+                <td><c:out value="${currentMatch.secondPlayer.gameSet}"/></td>
                 <td><c:out value="${currentMatch.secondPlayer.game}"/></td>
                 <td><c:out value="${currentMatch.secondPlayer.score.toString()}"/></td>
                 <td>

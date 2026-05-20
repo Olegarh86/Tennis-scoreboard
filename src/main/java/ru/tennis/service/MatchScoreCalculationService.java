@@ -1,17 +1,17 @@
 package ru.tennis.service;
 
 import ru.tennis.dto.CurrentMatch;
-import ru.tennis.dto.MatchScoreDto;
 import ru.tennis.gameState.Game;
 import ru.tennis.gameState.Score;
 import ru.tennis.gameState.TieBreak;
 
-import java.util.Collections;
+import java.util.Optional;
 
 
 public class MatchScoreCalculationService {
 
-    public static MatchScoreDto updateMatchState(CurrentMatch currentMatch, String playerGetPoint) {
+    public static Optional<CurrentMatch> updateMatchState(OngoingMatchesService ongoingMatchesService,
+                                                          CurrentMatch currentMatch, String playerGetPoint) {
         Integer idPlayerGetPoint = Integer.parseInt(playerGetPoint);
 
         if (currentMatch.firstPlayer.id.equals(idPlayerGetPoint)) {
@@ -28,12 +28,12 @@ public class MatchScoreCalculationService {
             checkEndGame(currentMatch);
 
             if (currentMatch.endMatch) {
-                OngoingMatchesService.deleteMatch(currentMatch);
+                ongoingMatchesService.deleteMatch(currentMatch);
             } else {
-                OngoingMatchesService.addMatch(currentMatch);
+                ongoingMatchesService.addMatch(currentMatch);
             }
         }
-        return OngoingMatchesService.getCurrentMatchDto(currentMatch.uuid);
+        return ongoingMatchesService.getCurrentMatch(currentMatch.uuid);
     }
 
     private static void checkEndGame(CurrentMatch currentMatch) {
@@ -115,16 +115,16 @@ public class MatchScoreCalculationService {
         currentMatch.secondPlayer.setScore(new Score(0));
 
         if (difference > 0) {
-            currentMatch.firstPlayer.setSet(currentMatch.firstPlayer.set.next());
+            currentMatch.firstPlayer.setGameSet(currentMatch.firstPlayer.gameSet.next());
         } else {
-            currentMatch.secondPlayer.setSet(currentMatch.secondPlayer.set.next());
+            currentMatch.secondPlayer.setGameSet(currentMatch.secondPlayer.gameSet.next());
         }
         checkEndMatch(currentMatch);
     }
 
     private static void checkEndMatch(CurrentMatch currentMatch) {
-        int firstPlayerSetsWin = currentMatch.firstPlayer.set.ordinal();
-        int secondPlayerSetsWin = currentMatch.secondPlayer.set.ordinal();
+        int firstPlayerSetsWin = currentMatch.firstPlayer.gameSet.ordinal();
+        int secondPlayerSetsWin = currentMatch.secondPlayer.gameSet.ordinal();
 
         if (firstPlayerSetsWin > 1 || secondPlayerSetsWin > 1) {
             currentMatch.endMatch = true;
@@ -133,8 +133,8 @@ public class MatchScoreCalculationService {
     }
 
     private static void determineWinner(CurrentMatch currentMatch) {
-        int firstPlayerSetsWin = currentMatch.firstPlayer.set.ordinal();
-        int secondPlayerSetsWin = currentMatch.secondPlayer.set.ordinal();
+        int firstPlayerSetsWin = currentMatch.firstPlayer.gameSet.ordinal();
+        int secondPlayerSetsWin = currentMatch.secondPlayer.gameSet.ordinal();
 
         if (firstPlayerSetsWin > 1) {
             currentMatch.winner.setWinnerId(currentMatch.firstPlayer.id);

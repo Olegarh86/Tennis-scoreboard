@@ -11,29 +11,31 @@ import java.io.IOException;
 
 @WebServlet(name = "errorPage", urlPatterns = "/errorPage")
 public class ErrorServlet extends HttpServlet {
+    private String code = "empty";
+    private String message = "empty";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String code = "0";
-        String message = "Unknown error";
-        if (req.getAttribute("jakarta.servlet.error.status_code") != null) {
-            code = req.getAttribute("jakarta.servlet.error.status_code").toString();
+
+        String attributeErrorCode = "jakarta.servlet.error.status_code";
+        if (req.getAttribute(attributeErrorCode) != null) {
+            code = req.getAttribute(attributeErrorCode).toString();
         }
-        if (req.getAttribute("jakarta.servlet.error.message") != null) {
-            message = req.getAttribute("jakarta.servlet.error.message").toString();
+        String attributeErrorMessage = "jakarta.servlet.error.message";
+        if (req.getAttribute(attributeErrorMessage) != null) {
+            message = req.getAttribute(attributeErrorMessage).toString();
         }
         req.setAttribute("status_code", code);
         req.setAttribute("message", message);
-        req.getRequestDispatcher(JspHelper.getPath("errorPage")).forward(req, resp);
+        forwardToErrorPage(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher(JspHelper.getPath("errorPage.jsp")).forward(req, resp);
+        forwardToErrorPage(req, resp);
     }
 
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.service(req, resp);
+    private static void forwardToErrorPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher(JspHelper.getPath("errorPage")).forward(req, resp);
     }
 }
