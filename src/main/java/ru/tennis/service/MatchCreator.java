@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class MatchCreator {
 
-    public static MatchCreateDto createNewCurrentMatch(OngoingMatchesService ongoingMatchesService, FinishedMatchesPersistenceService service, String playerName1, String playerName2) {
+    public MatchCreateDto createNewCurrentMatch(OngoingMatchesService ongoingMatchesService, FinishedMatchesPersistenceService service, String playerName1, String playerName2) {
         Player player1;
         Player player2;
         Session session = HibernateUtil.getSession();
@@ -32,7 +32,7 @@ public class MatchCreator {
         return new MatchCreateDto(currentMatch.uuid);
     }
 
-    private static Player getPlayer(FinishedMatchesPersistenceService service, String playerName, Session session) {
+    private Player getPlayer(FinishedMatchesPersistenceService service, String playerName, Session session) {
         Optional<Player> mayBePlayer = service.getPlayerByName(session, playerName);
         return mayBePlayer.orElseGet(() -> service.createNewPlayer(session, playerName));
     }

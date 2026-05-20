@@ -22,12 +22,14 @@ import java.io.IOException;
 public class MatchesServlet extends HttpServlet {
     private PlayerNamesValidator validator;
     private FinishedMatchesPersistenceService service;
+    private MatchesController matchesController;
 
     @Override
     public void init(ServletConfig config) {
         validator = new PlayerNamesValidator();
         TennisDao dao = new TennisDaoImpl();
         service = new FinishedMatchesPersistenceService(dao);
+        matchesController = new MatchesController();
     }
 
     @Override
@@ -36,7 +38,7 @@ public class MatchesServlet extends HttpServlet {
         String pageNumber = req.getParameter("page");
 
         String normalName = validator.normalizedPlayerName(playerName);
-        MatchesDto dto = MatchesController.getMatchesDto(service, normalName, TennisUtil.parsePage(pageNumber));
+        MatchesDto dto = matchesController.getMatchesDto(service, normalName, TennisUtil.parsePage(pageNumber));
 
         if (dto.pageCount() < 1) {
             String path = String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName());

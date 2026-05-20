@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class MatchesController {
 
-    public static MatchesDto getMatchesDto(FinishedMatchesPersistenceService service, String playerName, int page) {
+    public MatchesDto getMatchesDto(FinishedMatchesPersistenceService service, String playerName, int page) {
         int pageSize = TennisUtil.getPageSize();
         int offset = TennisUtil.offsetCalculate(page);
         List<Match> allMatches;

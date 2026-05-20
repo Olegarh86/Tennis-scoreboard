@@ -25,6 +25,7 @@ public class NewMatchServlet extends HttpServlet {
     private PlayerNamesValidator validator;
     private FinishedMatchesPersistenceService service;
     private OngoingMatchesService ongoingMatchesService;
+    private MatchCreator  matchCreator;
 
     @Override
     public void init(ServletConfig config) {
@@ -32,6 +33,7 @@ public class NewMatchServlet extends HttpServlet {
         TennisDao dao = new TennisDaoImpl();
         service = new FinishedMatchesPersistenceService(dao);
         ongoingMatchesService = new OngoingMatchesService();
+        matchCreator = new MatchCreator();
     }
 
     @Override
@@ -52,7 +54,7 @@ public class NewMatchServlet extends HttpServlet {
             req.setAttribute("playerName2", validationResult.normalizedName2());
             req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
         } else {
-            MatchCreateDto dto = MatchCreator.createNewCurrentMatch(ongoingMatchesService, service,
+            MatchCreateDto dto = matchCreator.createNewCurrentMatch(ongoingMatchesService, service,
                     validationResult.normalizedName1(),
                     validationResult.normalizedName2());
             String path = "/match-score?uuid=" + dto.uuid();
