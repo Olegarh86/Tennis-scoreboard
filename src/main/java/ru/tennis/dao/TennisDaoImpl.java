@@ -10,10 +10,11 @@ import java.util.Optional;
 
 public class TennisDaoImpl implements TennisDao {
     private static final String GET_PLAYER_BY_NAME = "select p from Player p where p.name = :name";
-    private static final String GET_ALL_MATCHES_QUERY = "select m from Match m order by id LIMIT :pageSize OFFSET :offset";
+    private static final String GET_ALL_MATCHES_QUERY = "select m from Match m order by id DESC LIMIT :pageSize OFFSET " +
+                                                        ":offset";
     private static final String GET_ALL_MATCHES_BY_NAME_QUERY = "select m from Match m where m.player1.name = " +
                                                                 ":playerName OR m.player2.name = :playerName order by id" +
-                                                                " LIMIT :pageSize OFFSET :offset";
+                                                                " DESC LIMIT :pageSize OFFSET :offset";
     private static final String GET_TOTAL_NUMBER_MATCHES = "select count(*) from Match";
     private static final String GET_TOTAL_NUMBER_MATCHES_BY_NAME = "select count(*) from Match where player1.name = " +
                                                                    ":playerName OR player2.name = :playerName";
