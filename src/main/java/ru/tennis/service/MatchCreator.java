@@ -17,15 +17,18 @@ public class MatchCreator {
         Player player1;
         Player player2;
         Session session = HibernateUtil.getSession();
-        Transaction transaction = session.beginTransaction();
+        Transaction transaction = null;
         try (session) {
+            transaction = session.beginTransaction();
             DataBaseUtil.addNFinishedMatchesWithRandomPlayers(service, session, 21);
             player1 = getPlayer(service, playerName1, session);
             player2 = getPlayer(service, playerName2, session);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
-            throw new CreateNewMatchException(e.getMessage());
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new CreateNewMatchException("Can't create new match", e);
         }
         CurrentMatch currentMatch = new CurrentMatch(player1, player2);
         ongoingMatchesService.addMatch(currentMatch);

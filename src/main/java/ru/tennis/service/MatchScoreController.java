@@ -26,13 +26,16 @@ public class MatchScoreController {
             return currentMatchAfterUpdate;
         } else {
             Session session = HibernateUtil.getSession();
-            Transaction transaction = session.beginTransaction();
+            Transaction transaction = null;
             try (session) {
+                transaction = session.beginTransaction();
                 service.saveFinishedMatch(session, matchBeforeUpdate);
                 transaction.commit();
             } catch (Exception e) {
-                transaction.rollback();
-                throw new SaveFinishedMatchException(e.getMessage());//
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                throw new SaveFinishedMatchException("Can't save match", e);//
             }
             return Optional.empty();
         }

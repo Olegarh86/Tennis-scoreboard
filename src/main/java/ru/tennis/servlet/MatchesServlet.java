@@ -40,7 +40,7 @@ public class MatchesServlet extends HttpServlet {
         String normalName = validator.normalizedPlayerName(playerName);
         MatchesDto dto = matchesController.getMatchesDto(service, normalName, TennisUtil.parsePage(pageNumber));
 
-        if (dto.pageCount() < 1) {
+        if (dto.mustBeChanged()) {
             String path = String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName());
             RedirectHelper.redirectResponse(req, resp, path);
             return;

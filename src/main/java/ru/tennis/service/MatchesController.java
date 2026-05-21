@@ -20,34 +20,35 @@ public class MatchesController {
         List<Match> allMatches;
         Long totalItems;
         Session session = HibernateUtil.getSession();
-        Transaction transaction = session.beginTransaction();
+        Transaction transaction = null;
         try (session) {
+            transaction = session.beginTransaction();
 
             if (playerName.isEmpty()) {
                 totalItems = service.getTotalNumberOfMatches(session, Optional.empty());
-                allMatches = service.getAllMatches(session, Optional.empty(),
-                        pageSize, offset);
+                allMatches = service.getAllMatches(session, Optional.empty(), pageSize, offset);
             } else {
                 totalItems = service.getTotalNumberOfMatches(session, Optional.of(playerName));
-                allMatches = service.getAllMatches(session, Optional.of(playerName), pageSize,
-                        offset);
+                allMatches = service.getAllMatches(session, Optional.of(playerName), pageSize, offset);
             }
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
-            throw new GetMatchesException(e.getMessage());
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new GetMatchesException("Can't get matches", e);
         }
 
         if (totalItems == 0 && allMatches.isEmpty()) {
-            return new MatchesDto(playerName, page, 1, Collections.emptyList());
+            return new MatchesDto(playerName, page, 0, Collections.emptyList(), false);
         }
 
         int pageCount = TennisUtil.pageCountCalculate(totalItems, pageSize);
 
         if (page > pageCount) {
             page = pageCount;
-            return new MatchesDto(playerName, page, 0, Collections.emptyList());
+            return new MatchesDto(playerName, page, 0, Collections.emptyList(), true);
         }
-        return new MatchesDto(playerName, page, pageCount, allMatches);
+        return new MatchesDto(playerName, page, pageCount, allMatches, false);
     }
 }

@@ -58,35 +58,37 @@
             </tr>
         </c:forEach>
     </table>
-    <div class="pagination">
 
-        <a class="prev"
-           href="matches?page=${requestScope.page - 1}&filter_by_player_name=${requestScope.filter_by_player_name}">
-            <
-        </a>
+    <c:if test="${requestScope.pageCount > 0}">
+        <div class="pagination">
+            <a class="prev"
+               href="matches?page=${requestScope.page - 1}&filter_by_player_name=${requestScope.filter_by_player_name}">
+                <
+            </a>
 
-        <div class="num-page">
-            <c:forEach var="count" begin="1" end="${requestScope.pageCount}">
+            <div class="num-page">
+                <c:forEach var="count" begin="1" end="${requestScope.pageCount}">
 
-                <c:choose>
-                    <c:when test="${requestScope.page == count}">
-                        <span class="current">${count}</span>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="matches?page=${count}&filter_by_player_name=${requestScope.filter_by_player_name}">
-                                ${count}
-                        </a>
-                    </c:otherwise>
-                </c:choose>
+                    <c:choose>
+                        <c:when test="${requestScope.page == count}">
+                            <span class="current">${count}</span>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="matches?page=${count}&filter_by_player_name=${requestScope.filter_by_player_name}">
+                                    ${count}
+                            </a>
+                        </c:otherwise>
+                    </c:choose>
 
-            </c:forEach>
+                </c:forEach>
+            </div>
+
+            <a class="next"
+               href="matches?page=${requestScope.page + 1}&filter_by_player_name=${requestScope.filter_by_player_name}">
+                >
+            </a>
         </div>
-
-        <a class="next"
-           href="matches?page=${requestScope.page + 1}&filter_by_player_name=${requestScope.filter_by_player_name}">
-            >
-        </a>
-    </div>
+    </c:if>
     <%@include file="footer.jsp" %>
 </main>
 </body>
