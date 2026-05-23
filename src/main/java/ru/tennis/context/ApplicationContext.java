@@ -16,5 +16,5 @@ public class ApplicationContext {
     private final OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
     private final CurrentMatchCreator currentMatchCreator = new CurrentMatchCreator(persistenceService, ongoingMatchesService);
     private final MatchScoreService matchScoreService = new MatchScoreService(ongoingMatchesService, persistenceService);
-    private final MatchesController matchesController = new MatchesController(persistenceService);
+    private final MatchesService matchesService = new MatchesService(persistenceService);
 }

@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class MatchesController {
+public class MatchesService {
     private final FinishedMatchesPersistenceService persistenceService;
 
-    public MatchesController(FinishedMatchesPersistenceService persistenceService) {
+    public MatchesService(FinishedMatchesPersistenceService persistenceService) {
         this.persistenceService = persistenceService;
     }
 

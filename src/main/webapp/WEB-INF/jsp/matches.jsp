@@ -39,7 +39,7 @@
             <th>Player Two</th>
             <th>Winner</th>
         </tr>
-        <c:forEach var="allMatches" items="${requestScope.allMatches}">
+        <c:forEach var="allMatches" items="${requestScope.matchesDto.allMatches}">
             <tr>
                 <td>${allMatches.player1.name}</td>
                 <td>${allMatches.player2.name}</td>
@@ -48,7 +48,7 @@
         </c:forEach>
     </table>
 
-    <c:if test="${requestScope.pageCount > 0}">
+    <c:if test="${requestScope.matchesDto.pageCount > 0}">
         <div class="pagination">
             <a class="prev"
                href="matches?page=${param.page - 1}&filter_by_player_name=${param.filter_by_player_name}">
@@ -56,10 +56,10 @@
             </a>
 
             <div class="num-page">
-                <c:forEach var="count" begin="1" end="${requestScope.pageCount}">
+                <c:forEach var="count" begin="1" end="${requestScope.matchesDto.pageCount}">
 
                     <c:choose>
-                        <c:when test="${requestScope.page == count}">
+                        <c:when test="${requestScope.matchesDto.page == count}">
                             <span class="current">${count}</span>
                         </c:when>
                         <c:otherwise>

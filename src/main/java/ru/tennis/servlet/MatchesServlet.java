@@ -7,43 +7,39 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.context.ApplicationContext;
 import ru.tennis.dto.MatchesDto;
-import ru.tennis.service.MatchesController;
+import ru.tennis.service.MatchesService;
 import ru.tennis.util.*;
 
 import java.io.IOException;
 
 @WebServlet(name = "matches", urlPatterns = "/matches")
 public class MatchesServlet extends HttpServlet {
+    private static final String PAGE = "page";
+    private static final String FILTER_BY_PLAYER_NAME = "filter_by_player_name";
     private NameNormalizer nameNormalizer;
-    private MatchesController matchesController;
+    private MatchesService matchesService;
 
     @Override
     public void init() {
         ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
         nameNormalizer = context.getNormalizer();
-        matchesController = context.getMatchesController();
+        matchesService = context.getMatchesService();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String page = "page";
-        String filterPlayerName = "filter_by_player_name";
         String pageNumber = req.getParameter("page");
         String playerName = req.getParameter("filter_by_player_name");
 
         String normalName = nameNormalizer.normalizePlayerName(playerName);
-        MatchesDto dto = matchesController.getMatchesDto(normalName, TennisUtil.parsePage(pageNumber));
+        MatchesDto matchesDto = matchesService.getMatchesDto(normalName, TennisUtil.parsePage(pageNumber));
 
-        if (dto.mustBeChanged()) {
-            String url = UrlBuilder.buildUrl("/matches", page, String.valueOf(dto.page()), filterPlayerName, dto.playerName());
+        if (matchesDto.needsRedirect()) {
+            String url = UrlBuilder.buildUrl("/matches", PAGE, String.valueOf(matchesDto.page()), FILTER_BY_PLAYER_NAME, matchesDto.playerName());
             RedirectHelper.redirectResponse(req, resp, url);
             return;
         }
-        req.setAttribute(filterPlayerName, dto.playerName());
-        req.setAttribute(page, dto.page());
-        req.setAttribute("pageCount", dto.pageCount());
-        req.setAttribute("allMatches", dto.allMatches());
+        req.setAttribute("matchesDto", matchesDto);
         req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
     }
 }
-
