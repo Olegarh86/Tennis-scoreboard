@@ -1,6 +1,5 @@
 package ru.tennis.servlet;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,42 +10,41 @@ import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.MatchesDto;
 import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.service.MatchesController;
-import ru.tennis.util.JspHelper;
-import ru.tennis.util.RedirectHelper;
-import ru.tennis.util.TennisUtil;
+import ru.tennis.util.*;
 import ru.tennis.validation.PlayerNamesValidator;
 
 import java.io.IOException;
 
 @WebServlet(name = "matches", urlPatterns = "/matches")
 public class MatchesServlet extends HttpServlet {
-    private PlayerNamesValidator validator;
-    private FinishedMatchesPersistenceService service;
+    private NameNormalizer nameNormalizer;
     private MatchesController matchesController;
 
     @Override
-    public void init(ServletConfig config) {
-        validator = new PlayerNamesValidator();
+    public void init() {
+        nameNormalizer = new NameNormalizer();
         TennisDao dao = new TennisDaoImpl();
-        service = new FinishedMatchesPersistenceService(dao);
-        matchesController = new MatchesController();
+        FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService(dao);
+        matchesController = new MatchesController(persistenceService);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String playerName = req.getParameter("filter_by_player_name");
+        String page = "page";
+        String filterPlayerName = "filter_by_player_name";
         String pageNumber = req.getParameter("page");
+        String playerName = req.getParameter("filter_by_player_name");
 
-        String normalName = validator.normalizedPlayerName(playerName);
-        MatchesDto dto = matchesController.getMatchesDto(service, normalName, TennisUtil.parsePage(pageNumber));
+        String normalName = nameNormalizer.normalizePlayerName(playerName);
+        MatchesDto dto = matchesController.getMatchesDto(normalName, TennisUtil.parsePage(pageNumber));
 
         if (dto.mustBeChanged()) {
-            String path = String.format("/matches?page=%s&filter_by_player_name=%s", dto.page(), dto.playerName());
-            RedirectHelper.redirectResponse(req, resp, path);
+            String url = UrlBuilder.buildUrl("/matches", page, String.valueOf(dto.page()), filterPlayerName, dto.playerName());
+            RedirectHelper.redirectResponse(req, resp, url);
             return;
         }
-        req.setAttribute("filter_by_player_name", dto.playerName());
-        req.setAttribute("page", dto.page());
+        req.setAttribute(filterPlayerName, dto.playerName());
+        req.setAttribute(page, dto.page());
         req.setAttribute("pageCount", dto.pageCount());
         req.setAttribute("allMatches", dto.allMatches());
         req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);

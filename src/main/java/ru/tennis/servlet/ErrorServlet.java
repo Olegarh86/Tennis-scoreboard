@@ -16,12 +16,13 @@ public class ErrorServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         String attributeErrorCode = "jakarta.servlet.error.status_code";
+
         if (req.getAttribute(attributeErrorCode) != null) {
             code = req.getAttribute(attributeErrorCode).toString();
         }
         String attributeErrorMessage = "jakarta.servlet.error.message";
+
         if (req.getAttribute(attributeErrorMessage) != null) {
             message = req.getAttribute(attributeErrorMessage).toString();
         }

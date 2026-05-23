@@ -6,17 +6,35 @@ import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.model.Match;
 import ru.tennis.model.Player;
 
+import java.util.Optional;
+
 @UtilityClass
 public class DataBaseUtil {
 
-    public static void addNFinishedMatchesWithRandomPlayers(FinishedMatchesPersistenceService service, Session session, int n) {
+    public static void addNFinishedMatchesWithRandomPlayers(FinishedMatchesPersistenceService persistenceService, Session session, int n) {
         for (int i = 0; i < n; i++) {
-            Player player1 = createRandomPlayer(service, session);
-            Player player2 = createRandomPlayer(service, session);
+            Player player1 = createRandomPlayer(persistenceService, session);
+            Player player2 = createRandomPlayer(persistenceService, session);
             Player winner = changeRandomWinner(player1, player2);
             Match match = Match.builder().player1(player1).player2(player2).winner(winner).build();
             session.persist(match);
         }
+    }
+
+    private static Player createRandomPlayer(FinishedMatchesPersistenceService persistenceService, Session session) {
+        String randomName = null;
+        Optional<Player> player = Optional.of(new Player());
+
+        while (player.isPresent()) {
+            randomName = getRandomName();
+            player = persistenceService.getPlayerByName(session, randomName);
+        }
+        return persistenceService.createNewPlayer(session, randomName);
+    }
+
+    private static String getRandomName() {
+        int random = (int) (Math.random() * 10000);
+        return String.valueOf(random);
     }
 
     private static Player changeRandomWinner(Player player1, Player player2) {
@@ -25,27 +43,5 @@ public class DataBaseUtil {
         } else {
             return player1;
         }
-    }
-
-    private static Player createRandomPlayer(FinishedMatchesPersistenceService service, Session session) {
-        String randomName = null;
-        Player player = new Player();
-
-        while (player != null) {
-            randomName = getRandomName();
-            player = findRandomPlayerInDB(session, randomName);
-        }
-        return service.createNewPlayer(session, randomName);
-    }
-
-    private static Player findRandomPlayerInDB(Session session, String randomName) {
-        return session.createQuery("select p from Player p where p.name = :name", Player.class)
-                .setParameter("name", randomName)
-                .uniqueResult();
-    }
-
-    private static String getRandomName() {
-        int random = (int) (Math.random() * 10000);
-        return String.valueOf(random);
     }
 }

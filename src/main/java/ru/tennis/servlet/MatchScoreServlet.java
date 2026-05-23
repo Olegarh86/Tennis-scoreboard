@@ -1,6 +1,5 @@
 package ru.tennis.servlet;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,22 +13,22 @@ import ru.tennis.service.MatchScoreController;
 import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
 import ru.tennis.util.RedirectHelper;
+import ru.tennis.util.UrlBuilder;
 
 import java.io.IOException;
 import java.util.Optional;
 
 @WebServlet(name = "match-score", urlPatterns = "/match-score")
 public class MatchScoreServlet extends HttpServlet {
-    private FinishedMatchesPersistenceService service;
     private MatchScoreController matchScoreController;
     private OngoingMatchesService ongoingMatchesService;
 
     @Override
-    public void init(ServletConfig config) {
+    public void init() {
         TennisDao tennisDao = new TennisDaoImpl();
-        service = new FinishedMatchesPersistenceService(tennisDao);
-        matchScoreController = new MatchScoreController();
+        FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService(tennisDao);
         ongoingMatchesService = new OngoingMatchesService();
+        matchScoreController = new MatchScoreController(ongoingMatchesService, persistenceService);
     }
 
     @Override
@@ -45,7 +44,7 @@ public class MatchScoreServlet extends HttpServlet {
             return;
         }
         req.setAttribute("currentMatch", mayBeMatch.get());
-        req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
+        forwardToMatchScore(req, resp);
     }
 
     @Override
@@ -53,14 +52,18 @@ public class MatchScoreServlet extends HttpServlet {
         String winnerId = req.getParameter("winner");
         String uuid = req.getParameter("uuid");
 
-        Optional<CurrentMatch> mayBeCurrentMatch = matchScoreController.updateCurrentMatch(ongoingMatchesService,
-                service, winnerId, uuid);
+        Optional<CurrentMatch> mayBeCurrentMatch = matchScoreController.updateCurrentMatch(winnerId, uuid);
 
         if (mayBeCurrentMatch.isPresent()) {
             req.setAttribute("currentMatch", mayBeCurrentMatch.get());
-            req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
+            forwardToMatchScore(req, resp);
         } else {
-            RedirectHelper.redirectResponse(req, resp, "/matches?page=1&filter_by_player_name=");
+            String url = UrlBuilder.buildUrl("/matches", "page", "1", "filter_by_player_name", "");
+            RedirectHelper.redirectResponse(req, resp, url);
         }
+    }
+
+    private static void forwardToMatchScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
     }
 }

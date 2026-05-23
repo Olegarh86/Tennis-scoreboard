@@ -12,11 +12,12 @@
 <body>
 <%@include file="header.jsp" %>
 <main class="container">
-    <h1>Current match</h1>
-    <div class="current-match-image"></div>
-    <div class="score">
 
-        <table class="table">
+    <h1>Current match</h1>
+
+    <div class="current-match-image"></div>
+
+        <table class="table score">
             <tr class="result th">
                 <th>Player</th>
                 <th>Sets</th>
@@ -50,7 +51,8 @@
                     <form action="${pageContext.request.contextPath}/match-score?uuid=${param.uuid}"
                           method="post">
                         <button class="score-btn table-text"
-                                type="submit" name="winner"
+                                type="submit"
+                                name="winner"
                                 value="${currentMatch.secondPlayer.id}">
                             score
                         </button>

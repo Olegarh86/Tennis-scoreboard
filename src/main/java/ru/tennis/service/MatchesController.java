@@ -13,9 +13,18 @@ import java.util.List;
 import java.util.Optional;
 
 public class MatchesController {
+    private final FinishedMatchesPersistenceService persistenceService;
 
-    public MatchesDto getMatchesDto(FinishedMatchesPersistenceService service, String playerName, int page) {
+    public MatchesController(FinishedMatchesPersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
+    }
+
+    public MatchesDto getMatchesDto(String playerName, int page) {
         int pageSize = TennisUtil.getPageSize();
+
+        if (page < 1) {
+            return new MatchesDto(playerName, 1, 0, Collections.emptyList(), true);
+        }
         int offset = TennisUtil.offsetCalculate(page);
         List<Match> allMatches;
         Long totalItems;
@@ -25,18 +34,18 @@ public class MatchesController {
             transaction = session.beginTransaction();
 
             if (playerName.isEmpty()) {
-                totalItems = service.getTotalNumberOfMatches(session, Optional.empty());
-                allMatches = service.getAllMatches(session, Optional.empty(), pageSize, offset);
+                totalItems = persistenceService.getTotalNumberOfMatches(session, Optional.empty());
+                allMatches = persistenceService.getAllMatches(session, Optional.empty(), pageSize, offset);
             } else {
-                totalItems = service.getTotalNumberOfMatches(session, Optional.of(playerName));
-                allMatches = service.getAllMatches(session, Optional.of(playerName), pageSize, offset);
+                totalItems = persistenceService.getTotalNumberOfMatches(session, Optional.of(playerName));
+                allMatches = persistenceService.getAllMatches(session, Optional.of(playerName), pageSize, offset);
             }
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new GetMatchesException("Can't get matches", e);
+            throw new GetMatchesException(e);
         }
 
         if (totalItems == 0 && allMatches.isEmpty()) {

@@ -33,7 +33,7 @@
         <label>
             <input class="input-player"
                    type="text"
-                   name="Имя игрока 1"
+                   name="playerName1"
                    placeholder="Введите имя"
                    value="${requestScope.playerName1}">
         </label>
@@ -43,7 +43,7 @@
         <label>
             <input class="input-player"
                    type="text"
-                   name="Имя игрока 2"
+                   name="playerName2"
                    placeholder="Введите имя"
                    value="${requestScope.playerName2}">
         </label>

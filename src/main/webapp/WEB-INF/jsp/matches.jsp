@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -20,23 +20,12 @@
 
         <input type="hidden"
                name="page"
-               value="${requestScope.page}"/>
-        <c:choose>
-            <c:when test="${fn:length(requestScope.filter_by_player_name) > 0}">
-                <input class="input-filter"
-                       type="text"
-                       name="filter_by_player_name"
-                       value="${requestScope.filter_by_player_name}"
-                       placeholder="Find matches by player name"/>
-            </c:when>
-            <c:otherwise>
-                <input class="input-filter"
-                       type="text"
-                       name="filter_by_player_name"
-                       value="${requestScope.filter_by_player_name}"
-                       placeholder="Find matches by player name"/>
-            </c:otherwise>
-        </c:choose>
+               value="${param.page}"/>
+        <input class="input-filter"
+               type="text"
+               name="filter_by_player_name"
+               value="${param.filter_by_player_name}"
+               placeholder="Find matches by player name"/>
 
         <button class="btn-filter"
                 type="submit">
@@ -62,7 +51,7 @@
     <c:if test="${requestScope.pageCount > 0}">
         <div class="pagination">
             <a class="prev"
-               href="matches?page=${requestScope.page - 1}&filter_by_player_name=${requestScope.filter_by_player_name}">
+               href="matches?page=${param.page - 1}&filter_by_player_name=${param.filter_by_player_name}">
                 <
             </a>
 
@@ -74,7 +63,7 @@
                             <span class="current">${count}</span>
                         </c:when>
                         <c:otherwise>
-                            <a href="matches?page=${count}&filter_by_player_name=${requestScope.filter_by_player_name}">
+                            <a href="matches?page=${count}&filter_by_player_name=${param.filter_by_player_name}">
                                     ${count}
                             </a>
                         </c:otherwise>
@@ -84,7 +73,7 @@
             </div>
 
             <a class="next"
-               href="matches?page=${requestScope.page + 1}&filter_by_player_name=${requestScope.filter_by_player_name}">
+               href="matches?page=${param.page + 1}&filter_by_player_name=${param.filter_by_player_name}">
                 >
             </a>
         </div>

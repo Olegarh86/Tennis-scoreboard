@@ -14,6 +14,9 @@ public class OngoingMatchesService {
     }
 
     public Optional<CurrentMatch> getCurrentMatch(String uuid) {
+        if (uuid == null || uuid.isBlank()) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(ONGOING_MATCHES.get(uuid));
     }
 

@@ -8,10 +8,10 @@ import ru.tennis.util.HibernateUtil;
 
 import java.util.Optional;
 
-public class MatchScoreController {
+public record MatchScoreController(OngoingMatchesService ongoingMatchesService,
+                                   FinishedMatchesPersistenceService persistenceService) {
 
-    public Optional<CurrentMatch> updateCurrentMatch(OngoingMatchesService ongoingMatchesService, FinishedMatchesPersistenceService service, String winnerId,
-                                                     String uuid) {
+    public Optional<CurrentMatch> updateCurrentMatch(String winnerId, String uuid) {
         Optional<CurrentMatch> mayBeCurrentMatch = ongoingMatchesService.getCurrentMatch(uuid);
 
         if (mayBeCurrentMatch.isEmpty()) {
@@ -29,13 +29,13 @@ public class MatchScoreController {
             Transaction transaction = null;
             try (session) {
                 transaction = session.beginTransaction();
-                service.saveFinishedMatch(session, matchBeforeUpdate);
+                persistenceService.saveFinishedMatch(session, matchBeforeUpdate);
                 transaction.commit();
             } catch (Exception e) {
                 if (transaction != null) {
                     transaction.rollback();
                 }
-                throw new SaveFinishedMatchException("Can't save match", e);//
+                throw new SaveFinishedMatchException(e);
             }
             return Optional.empty();
         }

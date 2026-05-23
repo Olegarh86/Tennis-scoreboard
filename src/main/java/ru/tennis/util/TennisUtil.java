@@ -19,12 +19,8 @@ public class TennisUtil {
     public static int parsePage(String pageNumber) {
         int page = 1;
 
-        if (!pageNumber.isEmpty()) {
+        if (pageNumber != null && !pageNumber.isEmpty()) {
             page = Integer.parseInt(pageNumber);
-        }
-
-        if (page < 1) {
-            page = 1;
         }
         return page;
     }
