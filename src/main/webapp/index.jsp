@@ -13,6 +13,7 @@
             text-decoration: none;
             text-align: center;
         }
+
         .matches-button {
             font-size: 21px;
             color: #000;
@@ -24,21 +25,21 @@
 <body>
 <%@include file="WEB-INF/jsp/header.jsp" %>
 <div class="container">
-        <h1><%= "Welcome to Tennis Scoreboard" %>
-        </h1>
-        <p> Manage your tennis matches, record results, and track rankings </p>
-        <div class="welcome-image"></div>
-        <div class="form-container center">
-            <a class="start-match homepage-action-button new-match-button"
-               href="${pageContext.request.contextPath}/new-match">
-                <p>Новая игра</p>
-            </a>
-            <br/>
-            <a class="view-results homepage-action-button matches-button"
-               href="${pageContext.request.contextPath}/matches?page=1&filter_by_player_name=">
-                <p>Результаты</p>
-            </a>
-        </div>
+    <h1><%= "Welcome to Tennis Scoreboard" %>
+    </h1>
+    <p> Manage your tennis matches, record results, and track rankings </p>
+    <div class="welcome-image"></div>
+    <div class="form-container center">
+        <a class="start-match homepage-action-button new-match-button"
+           href="${pageContext.request.contextPath}/new-match">
+            <p>Новая игра</p>
+        </a>
+        <br/>
+        <a class="view-results homepage-action-button matches-button"
+           href="${pageContext.request.contextPath}/matches?page=1&filter_by_player_name=">
+            <p>Результаты</p>
+        </a>
+    </div>
 </div>
 <%@include file="WEB-INF/jsp/footer.jsp" %>
 </body>

@@ -5,13 +5,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ru.tennis.dao.TennisDao;
-import ru.tennis.dao.TennisDaoImpl;
+import ru.tennis.context.ApplicationContext;
 import ru.tennis.dto.MatchesDto;
-import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.service.MatchesController;
 import ru.tennis.util.*;
-import ru.tennis.validation.PlayerNamesValidator;
 
 import java.io.IOException;
 
@@ -22,10 +19,9 @@ public class MatchesServlet extends HttpServlet {
 
     @Override
     public void init() {
-        nameNormalizer = new NameNormalizer();
-        TennisDao dao = new TennisDaoImpl();
-        FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService(dao);
-        matchesController = new MatchesController(persistenceService);
+        ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
+        nameNormalizer = context.getNormalizer();
+        matchesController = context.getMatchesController();
     }
 
     @Override

@@ -8,8 +8,8 @@ import ru.tennis.util.HibernateUtil;
 
 import java.util.Optional;
 
-public record MatchScoreController(OngoingMatchesService ongoingMatchesService,
-                                   FinishedMatchesPersistenceService persistenceService) {
+public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
+                                FinishedMatchesPersistenceService persistenceService) {
 
     public Optional<CurrentMatch> updateCurrentMatch(String winnerId, String uuid) {
         Optional<CurrentMatch> mayBeCurrentMatch = ongoingMatchesService.getCurrentMatch(uuid);

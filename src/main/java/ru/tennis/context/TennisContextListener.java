@@ -1,4 +1,4 @@
-package ru.tennis.contextListener;
+package ru.tennis.context;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -20,8 +20,8 @@ public class TennisContextListener implements ServletContextListener {
         cfg.addAnnotatedClass(Match.class);
         cfg.configure();
         sessionFactory = cfg.buildSessionFactory();
-        sce.getServletContext().setAttribute("sessionFactory", sessionFactory);
         HibernateUtil.initSessionFactory(sessionFactory);
+        sce.getServletContext().setAttribute("appContext", new ApplicationContext());
     }
 
     @Override

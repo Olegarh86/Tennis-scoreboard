@@ -36,7 +36,7 @@ public class ErrorServlet extends HttpServlet {
         forwardToErrorPage(req, resp);
     }
 
-    private static void forwardToErrorPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    private void forwardToErrorPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher(JspHelper.getPath("errorPage")).forward(req, resp);
     }
 }

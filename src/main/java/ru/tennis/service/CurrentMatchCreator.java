@@ -5,7 +5,6 @@ import org.hibernate.Transaction;
 import ru.tennis.dto.CurrentMatch;
 import ru.tennis.exceptions.CreateNewMatchException;
 import ru.tennis.model.Player;
-import ru.tennis.util.DataBaseUtil;
 import ru.tennis.util.HibernateUtil;
 
 import java.util.Optional;
@@ -20,15 +19,15 @@ public class CurrentMatchCreator {
     }
 
     public String createNewCurrentMatch(String playerName1, String playerName2) {
-        Player player1;
-        Player player2;
+        CurrentMatch currentMatch;
         Session session = HibernateUtil.getSession();
         Transaction transaction = null;
         try (session) {
             transaction = session.beginTransaction();
-            DataBaseUtil.addNFinishedMatchesWithRandomPlayers(persistenceService, session, 21);
-            player1 = getPlayer(playerName1, session);
-            player2 = getPlayer(playerName2, session);
+//            DataBaseUtil.addNFinishedMatchesWithRandomPlayers(persistenceService, session, 21);
+            Player player1 = getOrCreatePlayer(playerName1, session);
+            Player player2 = getOrCreatePlayer(playerName2, session);
+            currentMatch = new CurrentMatch(player1, player2);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -36,12 +35,11 @@ public class CurrentMatchCreator {
             }
             throw new CreateNewMatchException(e);
         }
-        CurrentMatch currentMatch = new CurrentMatch(player1, player2);
         ongoingMatchesService.addMatch(currentMatch);
-        return currentMatch.uuid;
+        return currentMatch.getUuid();
     }
 
-    private Player getPlayer(String playerName, Session session) {
+    private Player getOrCreatePlayer(String playerName, Session session) {
         Optional<Player> mayBePlayer = persistenceService.getPlayerByName(session, playerName);
         return mayBePlayer.orElseGet(() -> persistenceService.createNewPlayer(session, playerName));
     }

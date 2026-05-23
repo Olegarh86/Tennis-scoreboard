@@ -5,13 +5,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ru.tennis.dao.TennisDao;
-import ru.tennis.dao.TennisDaoImpl;
-import ru.tennis.service.FinishedMatchesPersistenceService;
+import ru.tennis.context.ApplicationContext;
 import ru.tennis.service.CurrentMatchCreator;
-import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
-import ru.tennis.util.NameNormalizer;
 import ru.tennis.util.RedirectHelper;
 import ru.tennis.util.UrlBuilder;
 import ru.tennis.validation.PlayerNamesValidator;
@@ -27,11 +23,9 @@ public class NewMatchServlet extends HttpServlet {
 
     @Override
     public void init() {
-        validator = new PlayerNamesValidator(new NameNormalizer());
-        TennisDao dao = new TennisDaoImpl();
-        FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService(dao);
-        OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
-        currentMatchCreator = new CurrentMatchCreator(persistenceService, ongoingMatchesService);
+        ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
+        validator = context.getValidator();
+        currentMatchCreator = context.getCurrentMatchCreator();
     }
 
     @Override
@@ -63,7 +57,7 @@ public class NewMatchServlet extends HttpServlet {
         }
     }
 
-    private static void forwardToNewMatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    private void forwardToNewMatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
     }
 }
