@@ -2,12 +2,12 @@ package ru.tennis.service;
 
 import ru.tennis.dto.CurrentMatch;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OngoingMatchesService {
-    private static final Map<String, CurrentMatch> ONGOING_MATCHES = new HashMap<>();
+    private static final Map<String, CurrentMatch> ONGOING_MATCHES = new ConcurrentHashMap<>();
 
     public void addMatch(CurrentMatch currentMatch) {
         ONGOING_MATCHES.put(currentMatch.getUuid(), currentMatch);
