@@ -15,7 +15,6 @@ import ru.tennis.validation.ValidationResult;
 
 import java.io.IOException;
 
-
 @WebServlet(name = "new-match", urlPatterns = "/new-match")
 public class NewMatchServlet extends HttpServlet {
     private PlayerNamesValidator validator;

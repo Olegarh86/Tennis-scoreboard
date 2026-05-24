@@ -2,6 +2,7 @@
 <configuration>
 
     <property name="LOG_DIR" value="C:\Users\Olegarh\logs" />
+    <!--"/opt/tennis/logs"-->
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/tennis.log</file>
