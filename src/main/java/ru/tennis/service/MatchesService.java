@@ -42,7 +42,7 @@ public class MatchesService {
             }
             transaction.commit();
         } catch (Exception e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new GetMatchesException(e);

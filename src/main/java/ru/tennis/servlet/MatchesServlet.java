@@ -12,6 +12,8 @@ import ru.tennis.util.*;
 
 import java.io.IOException;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+
 @WebServlet(name = "matches", urlPatterns = "/matches")
 public class MatchesServlet extends HttpServlet {
     private static final String PAGE = "page";
@@ -32,7 +34,13 @@ public class MatchesServlet extends HttpServlet {
         String playerName = req.getParameter("filter_by_player_name");
 
         String normalName = nameNormalizer.normalizePlayerName(playerName);
-        MatchesDto matchesDto = matchesService.getMatchesDto(normalName, TennisUtil.parsePage(pageNumber));
+        int page = 0;
+        try {
+            page = Integer.parseInt(pageNumber);
+        } catch (Exception e) {
+            resp.sendError(SC_BAD_REQUEST, "Incorrect parameter: " + PAGE);
+        }
+        MatchesDto matchesDto = matchesService.getMatchesDto(normalName, page);
 
         if (matchesDto.needsRedirect()) {
             String url = UrlBuilder.buildUrl("/matches", PAGE, String.valueOf(matchesDto.page()), FILTER_BY_PLAYER_NAME, matchesDto.playerName());

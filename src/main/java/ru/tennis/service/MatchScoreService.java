@@ -12,16 +12,19 @@ public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
                                 FinishedMatchesPersistenceService persistenceService,
                                 MatchScoreCalculationService calculationService) {
 
-    public Optional<CurrentMatch> updateCurrentMatch(String winnerId, String uuid) {
+    public Optional<CurrentMatch> updateCurrentMatch(Integer winnerId, String uuid) {
         Optional<CurrentMatch> mayBeCurrentMatch = ongoingMatchesService.getCurrentMatch(uuid);
 
         if (mayBeCurrentMatch.isEmpty()) {
             return Optional.empty();
         }
         CurrentMatch matchBeforeUpdate = mayBeCurrentMatch.get();
+        Optional<CurrentMatch> currentMatchAfterUpdate = Optional.empty();
 
-        Optional<CurrentMatch> currentMatchAfterUpdate =
-                calculationService.updateMatchState(matchBeforeUpdate, winnerId);
+        if (winnerId != null) {
+            currentMatchAfterUpdate =
+                    calculationService.updateMatchState(matchBeforeUpdate, winnerId);
+        }
 
         if (currentMatchAfterUpdate.isPresent()) {
             return currentMatchAfterUpdate;
@@ -33,7 +36,7 @@ public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
                 persistenceService.saveFinishedMatch(session, matchBeforeUpdate);
                 transaction.commit();
             } catch (Exception e) {
-                if (transaction != null) {
+                if (transaction != null && transaction.isActive()) {
                     transaction.rollback();
                 }
                 throw new SaveFinishedMatchException(e);

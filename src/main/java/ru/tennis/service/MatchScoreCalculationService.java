@@ -15,8 +15,7 @@ public class MatchScoreCalculationService {
         this.ongoingMatchesService = ongoingMatchesService;
     }
 
-    public Optional<CurrentMatch> updateMatchState(CurrentMatch currentMatch, String playerGetPoint) {
-        Integer idPlayerGetPoint = Integer.parseInt(playerGetPoint);
+    public Optional<CurrentMatch> updateMatchState(CurrentMatch currentMatch, Integer idPlayerGetPoint) {
 
         if (currentMatch.firstPlayer.id.equals(idPlayerGetPoint)) {
             Score nextPoint = currentMatch.firstPlayer.score.next();

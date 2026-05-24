@@ -30,7 +30,7 @@ public class CurrentMatchCreator {
             currentMatch = new CurrentMatch(player1, player2);
             transaction.commit();
         } catch (Exception e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw new CreateNewMatchException(e);

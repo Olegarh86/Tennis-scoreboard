@@ -15,13 +15,4 @@ public class TennisUtil {
     public static int offsetCalculate(int page) {
         return  (page - 1) * pageSize;
     }
-
-    public static int parsePage(String pageNumber) {
-        int page = 1;
-
-        if (pageNumber != null && !pageNumber.isEmpty()) {
-            page = Integer.parseInt(pageNumber);
-        }
-        return page;
-    }
 }

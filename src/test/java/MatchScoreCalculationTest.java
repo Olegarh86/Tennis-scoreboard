@@ -28,7 +28,7 @@ public class MatchScoreCalculationTest {
     public void firstPlayerWinPointTest() {
         currentMatch.firstPlayer.setScore(new Score(0));
         currentMatch.secondPlayer.setScore(new Score(0));
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(15, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
@@ -46,7 +46,7 @@ public class MatchScoreCalculationTest {
     public void playerWinGameTest() {
         currentMatch.firstPlayer.setScore(new Score(40));
         currentMatch.secondPlayer.setScore(new Score(0));
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
@@ -66,7 +66,7 @@ public class MatchScoreCalculationTest {
         currentMatch.secondPlayer.setScore(new Score(0));
         currentMatch.firstPlayer.setGame(Game.SIX);
         currentMatch.secondPlayer.setGame(Game.FIVE);
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
@@ -86,7 +86,7 @@ public class MatchScoreCalculationTest {
         currentMatch.secondPlayer.setScore(new Score(0));
         currentMatch.firstPlayer.setGame(Game.FIVE);
         currentMatch.secondPlayer.setGame(Game.SIX);
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
@@ -109,7 +109,7 @@ public class MatchScoreCalculationTest {
         currentMatch.firstPlayer.setGameSet(GameSet.ZERO);
         currentMatch.secondPlayer.setGameSet(GameSet.ZERO);
         currentMatch.tieBreak = true;
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(0, currentMatch.firstPlayer.score.getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.score.getScore()),
@@ -132,7 +132,7 @@ public class MatchScoreCalculationTest {
         currentMatch.firstPlayer.setGameSet(GameSet.ZERO);
         currentMatch.secondPlayer.setGameSet(GameSet.ZERO);
         currentMatch.tieBreak = true;
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(12346, currentMatch.firstPlayer.score.getScore()),
                 () -> assertEquals(12345, currentMatch.secondPlayer.score.getScore()),
@@ -155,7 +155,7 @@ public class MatchScoreCalculationTest {
         currentMatch.firstPlayer.setGameSet(GameSet.ONE);
         currentMatch.secondPlayer.setGameSet(GameSet.ZERO);
         currentMatch.tieBreak = false;
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(0, currentMatch.firstPlayer.score.getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.score.getScore()),
@@ -173,7 +173,7 @@ public class MatchScoreCalculationTest {
     public void scoreEqualAndFirstPlayerWinPointTest() {
         currentMatch.firstPlayer.setScore(new Score(40));
         currentMatch.secondPlayer.setScore(new Score(40));
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(50, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(40, currentMatch.secondPlayer.getScore().getScore()),
@@ -191,7 +191,7 @@ public class MatchScoreCalculationTest {
     public void scoreEqualAndSecondPlayerWinPointTest() {
         currentMatch.firstPlayer.setScore(new Score(40));
         currentMatch.secondPlayer.setScore(new Score(40));
-        calculationService.updateMatchState(currentMatch, "2");
+        calculationService.updateMatchState(currentMatch, 2);
         Assertions.assertAll(
                 () -> assertEquals(40, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(50, currentMatch.secondPlayer.getScore().getScore()),
@@ -209,7 +209,7 @@ public class MatchScoreCalculationTest {
     public void firstPlayerHaveAdvantageTest() {
         currentMatch.firstPlayer.setScore(new Score(40));
         currentMatch.secondPlayer.setScore(new Score(40));
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(50, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(40, currentMatch.secondPlayer.getScore().getScore()),
@@ -227,7 +227,7 @@ public class MatchScoreCalculationTest {
     public void firstPlayerWinGameWithAdvantageTest() {
         currentMatch.firstPlayer.setScore(new Score(50));
         currentMatch.secondPlayer.setScore(new Score(40));
-        calculationService.updateMatchState(currentMatch, "1");
+        calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
                 () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
@@ -245,7 +245,7 @@ public class MatchScoreCalculationTest {
     public void firstPlayerLosesAdvantageTest() {
         currentMatch.firstPlayer.setScore(new Score(50));
         currentMatch.secondPlayer.setScore(new Score(40));
-        calculationService.updateMatchState(currentMatch, "2");
+        calculationService.updateMatchState(currentMatch, 2);
         Assertions.assertAll(
                 () -> assertEquals(40, currentMatch.firstPlayer.getScore().getScore()),
                 () -> assertEquals(40, currentMatch.secondPlayer.getScore().getScore()),

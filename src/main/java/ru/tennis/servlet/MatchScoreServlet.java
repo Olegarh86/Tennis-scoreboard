@@ -16,6 +16,7 @@ import ru.tennis.util.UrlBuilder;
 import java.io.IOException;
 import java.util.Optional;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @WebServlet(name = "match-score", urlPatterns = "/match-score")
@@ -23,6 +24,7 @@ public class MatchScoreServlet extends HttpServlet {
     private MatchScoreService matchScoreService;
     private OngoingMatchesService ongoingMatchesService;
     private static final String UUID = "uuid";
+    private static final String WINNER = "winner";
 
     @Override
     public void init() {
@@ -35,6 +37,9 @@ public class MatchScoreServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String matchUuid = req.getParameter(UUID);
 
+        if (isMissing(resp, matchUuid, UUID)) {
+            return;
+        }
         Optional<CurrentMatch> mayBeMatch = ongoingMatchesService.getCurrentMatch(matchUuid);
 
         if (mayBeMatch.isEmpty()) {
@@ -47,18 +52,42 @@ public class MatchScoreServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String winnerId = req.getParameter("winner");
+        String winnerId = req.getParameter(WINNER);
         String matchUuid = req.getParameter(UUID);
 
-        Optional<CurrentMatch> mayBeCurrentMatch = matchScoreService.updateCurrentMatch(winnerId, matchUuid);
+        if (isMissing(resp, matchUuid, UUID)) {
+            return;
+        }
+        if (isMissing(resp, winnerId, WINNER)) {
+            return;
+        }
+        int id;
+        try {
+            id = Integer.parseInt(winnerId);
+            if (id < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            resp.sendError(SC_BAD_REQUEST, "Incorrect parameter: " + WINNER);
+            return;
+        }
+
+        Optional<CurrentMatch> mayBeCurrentMatch = matchScoreService.updateCurrentMatch(id, matchUuid);
 
         if (mayBeCurrentMatch.isPresent()) {
-            String path = "/match-score";
             String paramValue = mayBeCurrentMatch.get().getUuid();
-            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl(path, UUID, paramValue));
+            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID, paramValue));
         } else {
             String url = UrlBuilder.buildUrl("/matches", "page", "1", "filter_by_player_name", "");
             RedirectHelper.redirectResponse(req, resp, url);
         }
+    }
+
+    private static boolean isMissing(HttpServletResponse resp, String value, String paramName) throws IOException {
+        if (value == null || value.isBlank()) {
+            resp.sendError(SC_BAD_REQUEST, "Missing parameter " + paramName);
+            return true;
+        }
+        return false;
     }
 }
