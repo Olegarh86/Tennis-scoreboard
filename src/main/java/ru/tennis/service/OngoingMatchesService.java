@@ -7,10 +7,12 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OngoingMatchesService {
-    private static final Map<String, CurrentMatch> ONGOING_MATCHES = new ConcurrentHashMap<>();
+    private final Map<String, CurrentMatch> ONGOING_MATCHES = new ConcurrentHashMap<>();
 
     public void addMatch(CurrentMatch currentMatch) {
-        ONGOING_MATCHES.put(currentMatch.getUuid(), currentMatch);
+        if (currentMatch != null) {
+            ONGOING_MATCHES.put(currentMatch.getUuid(), currentMatch);
+        }
     }
 
     public Optional<CurrentMatch> getCurrentMatch(String uuid) {
@@ -20,7 +22,7 @@ public class OngoingMatchesService {
         return Optional.ofNullable(ONGOING_MATCHES.get(uuid));
     }
 
-    public void deleteMatch(CurrentMatch currentMatch) {
-        ONGOING_MATCHES.remove(currentMatch.getUuid());
+    public void deleteMatch(String uuid) {
+        ONGOING_MATCHES.remove(uuid);
     }
 }

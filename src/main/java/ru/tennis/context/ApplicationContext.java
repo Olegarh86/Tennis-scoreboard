@@ -15,6 +15,8 @@ public class ApplicationContext {
     private final FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService(dao);
     private final OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
     private final CurrentMatchCreator currentMatchCreator = new CurrentMatchCreator(persistenceService, ongoingMatchesService);
-    private final MatchScoreService matchScoreService = new MatchScoreService(ongoingMatchesService, persistenceService);
+    private final MatchScoreCalculationService calculationService = new MatchScoreCalculationService(ongoingMatchesService);
+    private final MatchScoreService matchScoreService = new MatchScoreService(ongoingMatchesService,
+            persistenceService, calculationService);
     private final MatchesService matchesService = new MatchesService(persistenceService);
 }

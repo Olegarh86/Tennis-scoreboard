@@ -9,7 +9,8 @@ import ru.tennis.util.HibernateUtil;
 import java.util.Optional;
 
 public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
-                                FinishedMatchesPersistenceService persistenceService) {
+                                FinishedMatchesPersistenceService persistenceService,
+                                MatchScoreCalculationService calculationService) {
 
     public Optional<CurrentMatch> updateCurrentMatch(String winnerId, String uuid) {
         Optional<CurrentMatch> mayBeCurrentMatch = ongoingMatchesService.getCurrentMatch(uuid);
@@ -20,7 +21,7 @@ public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
         CurrentMatch matchBeforeUpdate = mayBeCurrentMatch.get();
 
         Optional<CurrentMatch> currentMatchAfterUpdate =
-                MatchScoreCalculationService.updateMatchState(ongoingMatchesService, matchBeforeUpdate, winnerId);
+                calculationService.updateMatchState(matchBeforeUpdate, winnerId);
 
         if (currentMatchAfterUpdate.isPresent()) {
             return currentMatchAfterUpdate;

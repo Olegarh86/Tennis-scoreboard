@@ -9,9 +9,13 @@ import java.util.Optional;
 
 
 public class MatchScoreCalculationService {
+    private final OngoingMatchesService ongoingMatchesService;
 
-    public static Optional<CurrentMatch> updateMatchState(OngoingMatchesService ongoingMatchesService,
-                                                          CurrentMatch currentMatch, String playerGetPoint) {
+    public MatchScoreCalculationService(OngoingMatchesService ongoingMatchesService) {
+        this.ongoingMatchesService = ongoingMatchesService;
+    }
+
+    public Optional<CurrentMatch> updateMatchState(CurrentMatch currentMatch, String playerGetPoint) {
         Integer idPlayerGetPoint = Integer.parseInt(playerGetPoint);
 
         if (currentMatch.firstPlayer.id.equals(idPlayerGetPoint)) {
@@ -28,12 +32,12 @@ public class MatchScoreCalculationService {
             checkEndGame(currentMatch);
 
             if (currentMatch.endMatch) {
-                ongoingMatchesService.deleteMatch(currentMatch);
+                ongoingMatchesService.deleteMatch(currentMatch.getUuid());
             } else {
                 ongoingMatchesService.addMatch(currentMatch);
             }
         }
-        return ongoingMatchesService.getCurrentMatch(currentMatch.uuid);
+        return ongoingMatchesService.getCurrentMatch(currentMatch.getUuid());
     }
 
     private static void checkEndGame(CurrentMatch currentMatch) {
