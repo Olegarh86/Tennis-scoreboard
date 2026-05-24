@@ -12,28 +12,23 @@ public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
                                 FinishedMatchesPersistenceService persistenceService,
                                 MatchScoreCalculationService calculationService) {
 
-    public Optional<CurrentMatch> updateCurrentMatch(Integer winnerId, String uuid) {
+    public CurrentMatch updateCurrentMatch(Integer winnerId, String uuid) {
         Optional<CurrentMatch> mayBeCurrentMatch = ongoingMatchesService.getCurrentMatch(uuid);
 
         if (mayBeCurrentMatch.isEmpty()) {
-            return Optional.empty();
+            return new CurrentMatch();
         }
-        CurrentMatch matchBeforeUpdate = mayBeCurrentMatch.get();
-        Optional<CurrentMatch> currentMatchAfterUpdate = Optional.empty();
+        CurrentMatch currentMatch = mayBeCurrentMatch.get();
 
-        if (winnerId != null) {
-            currentMatchAfterUpdate =
-                    calculationService.updateMatchState(matchBeforeUpdate, winnerId);
-        }
+        calculationService.updateMatchState(currentMatch, winnerId);
 
-        if (currentMatchAfterUpdate.isPresent()) {
-            return currentMatchAfterUpdate;
-        } else {
+        if (currentMatch.endMatch) {
             Session session = HibernateUtil.getSession();
             Transaction transaction = null;
             try (session) {
                 transaction = session.beginTransaction();
-                persistenceService.saveFinishedMatch(session, matchBeforeUpdate);
+                persistenceService.saveFinishedMatch(session, currentMatch);
+                ongoingMatchesService.deleteMatch(currentMatch.getUuid());
                 transaction.commit();
             } catch (Exception e) {
                 if (transaction != null && transaction.isActive()) {
@@ -41,7 +36,7 @@ public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
                 }
                 throw new SaveFinishedMatchException(e);
             }
-            return Optional.empty();
         }
+        return currentMatch;
     }
 }

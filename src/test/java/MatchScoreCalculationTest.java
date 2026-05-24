@@ -21,7 +21,7 @@ public class MatchScoreCalculationTest {
         currentMatch = new CurrentMatch(
                 Player.builder().id(1).name("Ivan").build(),
                 Player.builder().id(2).name("John").build());
-        this.calculationService = new MatchScoreCalculationService(new OngoingMatchesService());
+        this.calculationService = new MatchScoreCalculationService();
     }
 
     @Test
@@ -163,7 +163,7 @@ public class MatchScoreCalculationTest {
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
                 () -> assertEquals(2, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
                 () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(1, currentMatch.winner.getWinnerId()),
+                () -> assertEquals(1, currentMatch.getWinner().getWinnerId()),
                 () -> assertEquals(false, currentMatch.tieBreak),
                 () -> assertEquals(true, currentMatch.endMatch)
         );

@@ -1,151 +1,155 @@
 package ru.tennis.service;
 
 import ru.tennis.dto.CurrentMatch;
+import ru.tennis.exceptions.InvalidWinnerIdException;
 import ru.tennis.gameState.Game;
 import ru.tennis.gameState.Score;
 import ru.tennis.gameState.TieBreak;
 
-import java.util.Optional;
-
 
 public class MatchScoreCalculationService {
-    private final OngoingMatchesService ongoingMatchesService;
+    private static final int ZERO = 0;
+    private static final int DIFFERENCE_FOR_WIN = 2;
+    private static final int SETS_TO_WIN_MATCH = 2;
+    private static final int GAMES_TO_WIN_SET = 6;
+    private static final int POINTS_TO_WIN_TIE_BREAK = 7;
+    private static final int ADVANTAGE_DIFFERENCE = 10;
+    private static final int DEUCE_SCORE = 40;
+    private static final int ADVANTAGE_SCORE = 50;
 
-    public MatchScoreCalculationService(OngoingMatchesService ongoingMatchesService) {
-        this.ongoingMatchesService = ongoingMatchesService;
+    public void updateMatchState(CurrentMatch currentMatch, int winnerPlayerId) {
+        addPointToWinner(currentMatch, winnerPlayerId);
+
+        if (currentMatch.getTieBreak()) {
+            checkEndTieBreak(currentMatch);
+            return;
+        }
+        checkEndGame(currentMatch);
     }
 
-    public Optional<CurrentMatch> updateMatchState(CurrentMatch currentMatch, Integer idPlayerGetPoint) {
-
-        if (currentMatch.firstPlayer.id.equals(idPlayerGetPoint)) {
-            Score nextPoint = currentMatch.firstPlayer.score.next();
-            currentMatch.firstPlayer.setScore(nextPoint);
+    private void addPointToWinner(CurrentMatch currentMatch, int winnerPlayerId) {
+        if (currentMatch.getFirstPlayer().getId().equals(winnerPlayerId)) {
+            Score nextPoint = currentMatch.getFirstPlayer().getScore().next();
+            currentMatch.getFirstPlayer().setScore(nextPoint);
+        } else if (currentMatch.getSecondPlayer().getId().equals(winnerPlayerId)) {
+            Score nextPoint = currentMatch.getSecondPlayer().getScore().next();
+            currentMatch.getSecondPlayer().setScore(nextPoint);
         } else {
-            Score nextPoint = currentMatch.secondPlayer.score.next();
-            currentMatch.secondPlayer.setScore(nextPoint);
+            throw new InvalidWinnerIdException(winnerPlayerId);
         }
-
-        if (currentMatch.tieBreak) {
-            playTieBreak(currentMatch);
-        } else {
-            checkEndGame(currentMatch);
-
-            if (currentMatch.endMatch) {
-                ongoingMatchesService.deleteMatch(currentMatch.getUuid());
-            } else {
-                ongoingMatchesService.addMatch(currentMatch);
-            }
-        }
-        return ongoingMatchesService.getCurrentMatch(currentMatch.getUuid());
     }
 
-    private static void checkEndGame(CurrentMatch currentMatch) {
-        int firstPlayerScores = currentMatch.firstPlayer.score.getScore();
-        int secondPlayerScores = currentMatch.secondPlayer.score.getScore();
+    private void checkEndGame(CurrentMatch currentMatch) {
+        int firstPlayerScores = currentMatch.getFirstPlayer().getScore().getScore();
+        int secondPlayerScores = currentMatch.getSecondPlayer().getScore().getScore();
 
-        if (firstPlayerScores > 40 || secondPlayerScores > 40) {
+        if (firstPlayerScores > DEUCE_SCORE || secondPlayerScores > DEUCE_SCORE) {
             int difference = firstPlayerScores - secondPlayerScores;
 
-            if (difference > 10 || difference < -10) {
+            if (difference > ADVANTAGE_DIFFERENCE || difference < -ADVANTAGE_DIFFERENCE) {
                 winGame(currentMatch, difference);
+                return;
             }
 
-            if (difference == 10) {
-                currentMatch.firstPlayer.setScore(new Score(50));
-                currentMatch.secondPlayer.setScore(new Score(40));
+            if (difference == ADVANTAGE_DIFFERENCE) {
+                currentMatch.getFirstPlayer().setScore(new Score(ADVANTAGE_SCORE));
+                currentMatch.getSecondPlayer().setScore(new Score(DEUCE_SCORE));
             }
 
-            if (difference == 0) {
-                currentMatch.firstPlayer.setScore(new Score(40));
-                currentMatch.secondPlayer.setScore(new Score(40));
+            if (difference == ZERO) {
+                currentMatch.getFirstPlayer().setScore(new Score(DEUCE_SCORE));
+                currentMatch.getSecondPlayer().setScore(new Score(DEUCE_SCORE));
             }
 
-            if (difference == -10) {
-                currentMatch.firstPlayer.setScore(new Score(40));
-                currentMatch.secondPlayer.setScore(new Score(50));
+            if (difference == -ADVANTAGE_DIFFERENCE) {
+                currentMatch.getFirstPlayer().setScore(new Score(DEUCE_SCORE));
+                currentMatch.getSecondPlayer().setScore(new Score(ADVANTAGE_SCORE));
             }
         }
     }
 
-    private static void winGame(CurrentMatch currentMatch, int difference) {
-        currentMatch.firstPlayer.setScore(new Score(0));
-        currentMatch.secondPlayer.setScore(new Score(0));
+    private void winGame(CurrentMatch currentMatch, int difference) {
+        currentMatch.getFirstPlayer().setScore(new Score(ZERO));
+        currentMatch.getSecondPlayer().setScore(new Score(ZERO));
 
-        if (difference > 0) {
-            currentMatch.firstPlayer.setGame(currentMatch.firstPlayer.game.next());
+        if (difference > ZERO) {
+            currentMatch.getFirstPlayer().setGame(currentMatch.getFirstPlayer().getGame().next());
         } else {
-            currentMatch.secondPlayer.setGame(currentMatch.secondPlayer.game.next());
+            currentMatch.getSecondPlayer().setGame(currentMatch.getSecondPlayer().getGame().next());
         }
         checkEndSet(currentMatch);
     }
 
-    private static void checkEndSet(CurrentMatch currentMatch) {
-        int firstPlayerGames = currentMatch.firstPlayer.game.ordinal();
-        int secondPlayerGames = currentMatch.secondPlayer.game.ordinal();
+    private void checkEndSet(CurrentMatch currentMatch) {
+        int firstPlayerGames = currentMatch.getFirstPlayer().getGame().getValue();
+        int secondPlayerGames = currentMatch.getSecondPlayer().getGame().getValue();
 
-        if (firstPlayerGames >= 6 || secondPlayerGames >= 6) {
+        if (firstPlayerGames >= GAMES_TO_WIN_SET || secondPlayerGames >= GAMES_TO_WIN_SET) {
             int difference = firstPlayerGames - secondPlayerGames;
 
-            if (difference >= 2 || difference <= -2) {
+            if (difference >= DIFFERENCE_FOR_WIN || difference <= -DIFFERENCE_FOR_WIN) {
                 winSet(currentMatch, difference);
+                return;
             }
 
-            if (difference == 0) {
-                currentMatch.tieBreak = true;
-                currentMatch.firstPlayer.setScore(new TieBreak(0));
-                currentMatch.secondPlayer.setScore(new TieBreak(0));
-                playTieBreak(currentMatch);
+            if (firstPlayerGames == GAMES_TO_WIN_SET && secondPlayerGames == GAMES_TO_WIN_SET) {
+                startTieBreak(currentMatch);
             }
         }
     }
 
-    private static void playTieBreak(CurrentMatch currentMatch) {
-        Integer firstPlayerScore = currentMatch.firstPlayer.score.getScore();
-        Integer secondPlayerScore = currentMatch.secondPlayer.score.getScore();
+    private void startTieBreak(CurrentMatch currentMatch) {
+        currentMatch.setTieBreak(true);
+        currentMatch.getFirstPlayer().setScore(new TieBreak(ZERO));
+        currentMatch.getSecondPlayer().setScore(new TieBreak(ZERO));
+    }
+
+    private void checkEndTieBreak(CurrentMatch currentMatch) {
+        int firstPlayerScore = currentMatch.getFirstPlayer().getScore().getScore();
+        int secondPlayerScore = currentMatch.getSecondPlayer().getScore().getScore();
         int difference = firstPlayerScore - secondPlayerScore;
-        if (firstPlayerScore >= 7 || secondPlayerScore >= 7) {
-            if (difference >= 2 || difference <= -2) {
-                currentMatch.tieBreak = false;
+        if (firstPlayerScore >= POINTS_TO_WIN_TIE_BREAK || secondPlayerScore >= POINTS_TO_WIN_TIE_BREAK) {
+            if (difference >= DIFFERENCE_FOR_WIN || difference <= -DIFFERENCE_FOR_WIN) {
+                currentMatch.setTieBreak(false);
                 winSet(currentMatch, difference);
             }
         }
     }
 
-    private static void winSet(CurrentMatch currentMatch, int difference) {
-        currentMatch.firstPlayer.setGame(Game.ZERO);
-        currentMatch.firstPlayer.setScore(new Score(0));
-        currentMatch.secondPlayer.setGame(Game.ZERO);
-        currentMatch.secondPlayer.setScore(new Score(0));
+    private void winSet(CurrentMatch currentMatch, int difference) {
+        currentMatch.getFirstPlayer().setGame(Game.ZERO);
+        currentMatch.getFirstPlayer().setScore(new Score(ZERO));
+        currentMatch.getSecondPlayer().setGame(Game.ZERO);
+        currentMatch.getSecondPlayer().setScore(new Score(ZERO));
 
-        if (difference > 0) {
-            currentMatch.firstPlayer.setGameSet(currentMatch.firstPlayer.gameSet.next());
+        if (difference > ZERO) {
+            currentMatch.getFirstPlayer().setGameSet(currentMatch.getFirstPlayer().getGameSet().next());
         } else {
-            currentMatch.secondPlayer.setGameSet(currentMatch.secondPlayer.gameSet.next());
+            currentMatch.getSecondPlayer().setGameSet(currentMatch.getSecondPlayer().getGameSet().next());
         }
         checkEndMatch(currentMatch);
     }
 
-    private static void checkEndMatch(CurrentMatch currentMatch) {
-        int firstPlayerSetsWin = currentMatch.firstPlayer.gameSet.ordinal();
-        int secondPlayerSetsWin = currentMatch.secondPlayer.gameSet.ordinal();
+    private void checkEndMatch(CurrentMatch currentMatch) {
+        int firstPlayerSetsWin = currentMatch.getFirstPlayer().getGameSet().getValue();
+        int secondPlayerSetsWin = currentMatch.getSecondPlayer().getGameSet().getValue();
 
-        if (firstPlayerSetsWin > 1 || secondPlayerSetsWin > 1) {
-            currentMatch.endMatch = true;
+        if (firstPlayerSetsWin == SETS_TO_WIN_MATCH || secondPlayerSetsWin == SETS_TO_WIN_MATCH) {
+            currentMatch.setEndMatch(true);
             determineWinner(currentMatch);
         }
     }
 
-    private static void determineWinner(CurrentMatch currentMatch) {
-        int firstPlayerSetsWin = currentMatch.firstPlayer.gameSet.ordinal();
-        int secondPlayerSetsWin = currentMatch.secondPlayer.gameSet.ordinal();
+    private void determineWinner(CurrentMatch currentMatch) {
+        int firstPlayerSetsWin = currentMatch.getFirstPlayer().getGameSet().getValue();
+        int secondPlayerSetsWin = currentMatch.getSecondPlayer().getGameSet().getValue();
 
-        if (firstPlayerSetsWin > 1) {
-            currentMatch.winner.setWinnerId(currentMatch.firstPlayer.id);
-            currentMatch.winner.setWinnerName(currentMatch.firstPlayer.name);
-        }
-        if (secondPlayerSetsWin > 1) {
-            currentMatch.winner.setWinnerId(currentMatch.secondPlayer.id);
-            currentMatch.winner.setWinnerName(currentMatch.secondPlayer.name);
+        if (firstPlayerSetsWin == SETS_TO_WIN_MATCH) {
+            currentMatch.getWinner().setWinnerId(currentMatch.getFirstPlayer().getId());
+            currentMatch.getWinner().setWinnerName(currentMatch.getFirstPlayer().getName());
+        } else if (secondPlayerSetsWin == SETS_TO_WIN_MATCH) {
+            currentMatch.getWinner().setWinnerId(currentMatch.getSecondPlayer().getId());
+            currentMatch.getWinner().setWinnerName(currentMatch.getSecondPlayer().getName());
         }
     }
 }

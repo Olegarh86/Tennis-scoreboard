@@ -72,10 +72,14 @@ public class MatchScoreServlet extends HttpServlet {
             return;
         }
 
-        Optional<CurrentMatch> mayBeCurrentMatch = matchScoreService.updateCurrentMatch(id, matchUuid);
+        CurrentMatch currentMatch = matchScoreService.updateCurrentMatch(id, matchUuid);
+        if (!currentMatch.getUuid().equals(matchUuid)) {
+            resp.sendError(SC_BAD_REQUEST, "Match not found with id: " + matchUuid);
+            return;
+        }
 
-        if (mayBeCurrentMatch.isPresent()) {
-            String paramValue = mayBeCurrentMatch.get().getUuid();
+        if (!currentMatch.endMatch) {
+            String paramValue = currentMatch.getUuid();
             RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID, paramValue));
         } else {
             String url = UrlBuilder.buildUrl("/matches", "page", "1", "filter_by_player_name", "");

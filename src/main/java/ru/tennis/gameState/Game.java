@@ -32,4 +32,8 @@ public enum Game {
     public String toString(){
         return this.points.toString();
     }
+
+    public int getValue(){
+        return points;
+    }
 }

@@ -8,9 +8,9 @@ public enum GameSet {
     FOUR(4),
     FIVE(5);
 
-    private final Integer points;
+    private final int points;
 
-    GameSet(Integer points) {
+    GameSet(int points) {
         this.points = points;
     }
 
@@ -26,6 +26,10 @@ public enum GameSet {
     }
 
     public String toString() {
-        return this.points.toString();
+        return String.valueOf(points);
+    }
+
+    public int getValue() {
+        return this.points;
     }
 }
