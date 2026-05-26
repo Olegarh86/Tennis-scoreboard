@@ -33,6 +33,8 @@ The project was created as a pet-project for practicing Java backend development
 * JSP/JSTL
 * Hibernate ORM
 * Maven
+* H2 Database
+* Lombok
 
 ### Database
 
@@ -109,25 +111,25 @@ src/main/java/ru/tennis
 
 ### Requirements
 
-* Java 17+
+* Java 17
 * Maven
-* Tomcat 10
+* Tomcat 11
 
 ### Clone repository
 
-```bash
+```
 git clone https://github.com/Olegarh86/Tennis-scoreboard.git
 ```
 
 ### Build project
 
-```bash
+```
 mvn clean package
 ```
 
 ### Deploy
 
-Deploy generated `.war` file to Tomcat.
+Deploy generated .war file to Tomcat.
 
 ---
 
@@ -143,30 +145,6 @@ The project contains unit tests for:
 
 Run tests:
 
-```bash
+```
 mvn test
 ```
-
----
-
-## Future Improvements
-
-* Integration tests
-* Better UI/UX
-* Player statistics
-* REST API
-* Docker support
-* Authentication
-* Match filters and pagination
-
----
-
-## Screenshots
-
-*Add screenshots here*
-
----
-
-## Author
-
-Oleg Arkharov
