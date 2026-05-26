@@ -4,33 +4,25 @@ import lombok.Getter;
 
 @Getter
 public class Score {
-    private Integer score;
+    private final int score;
 
-    public Score(Integer score) {
+    public Score(int score) {
         this.score = score;
     }
 
     public Score next() {
-        switch (score) {
-            case 0:
-                score = 15;
-                break;
-            case 15:
-                score = 30;
-                break;
-            case 30:
-                score = 40;
-                break;
-            case 40:
-                score = 50;
-                break;
-            case 50:
-                score = 51;
-                break;
-            default:
-                score = -1;
-        }
-        return this;
+        return switch (score) {
+            case 0 -> new Score(15);
+            case 15 -> new Score(30);
+            case 30 -> new Score(40);
+            case 40 -> new Score(50);
+            case 50 -> new Score(51);
+            default -> new Score(-1);
+        };
+    }
+
+    public int getValue() {
+        return score;
     }
 
     @Override

@@ -1,19 +1,14 @@
 package ru.tennis.dto;
 
 import lombok.Getter;
-import lombok.Setter;
-import ru.tennis.model.Player;
 
 @Getter
-@Setter
-public class Winner {
-    private Player winner;
-    private int winnerId;
-    private String winnerName;
+public class Winner extends PlayerState {
+    private final int winnerId;
+    private final String winnerName;
 
-    Winner(Player player) {
-        this.winner = player;
-        this.winnerId = player.getId();
-        this.winnerName = player.getName();
+    public Winner(int winnerId,  String winnerName) {
+        this.winnerId = winnerId;
+        this.winnerName = winnerName;
     }
 }

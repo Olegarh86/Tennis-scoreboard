@@ -3,6 +3,7 @@ package ru.tennis.service;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import ru.tennis.dto.CurrentMatch;
+import ru.tennis.exceptions.MatchNotFoundException;
 import ru.tennis.exceptions.SaveFinishedMatchException;
 import ru.tennis.util.HibernateUtil;
 
@@ -16,27 +17,31 @@ public record MatchScoreService(OngoingMatchesService ongoingMatchesService,
         Optional<CurrentMatch> mayBeCurrentMatch = ongoingMatchesService.getCurrentMatch(uuid);
 
         if (mayBeCurrentMatch.isEmpty()) {
-            return new CurrentMatch();
+            throw new MatchNotFoundException("Current match not found");
         }
         CurrentMatch currentMatch = mayBeCurrentMatch.get();
 
         calculationService.updateMatchState(currentMatch, winnerId);
 
-        if (currentMatch.endMatch) {
-            Session session = HibernateUtil.getSession();
-            Transaction transaction = null;
-            try (session) {
-                transaction = session.beginTransaction();
-                persistenceService.saveFinishedMatch(session, currentMatch);
-                ongoingMatchesService.deleteMatch(currentMatch.getUuid());
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null && transaction.isActive()) {
-                    transaction.rollback();
-                }
-                throw new SaveFinishedMatchException(e);
-            }
+        if (currentMatch.hasWinner()) {
+            saveFinishedMatch(currentMatch);
+            ongoingMatchesService.deleteMatch(currentMatch.getUuid());
         }
         return currentMatch;
+    }
+
+    private void saveFinishedMatch(CurrentMatch currentMatch) {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try (session) {
+            transaction = session.beginTransaction();
+            persistenceService.saveFinishedMatch(session, currentMatch);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new SaveFinishedMatchException("Can't save match", e);
+        }
     }
 }

@@ -9,14 +9,16 @@ import ru.tennis.gameState.GameSet;
 import ru.tennis.model.Player;
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class PlayerState {
-    public Integer id;
-    public String name;
-    public Score score;
-    public Game game;
-    public GameSet gameSet;
+    private Integer id;
+    private String name;
+    @Setter
+    private Score score;
+    @Setter
+    private Game game;
+    @Setter
+    private GameSet gameSet;
 
     PlayerState(Player player) {
         this.id = player.getId();

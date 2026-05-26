@@ -35,9 +35,12 @@ public class TennisDaoImpl implements TennisDao {
 
     @Override
     public void saveFinishedTennisMatch(Session session, CurrentMatch currentMatch) {
-        Player player1 = Player.builder().id(currentMatch.firstPlayer.id).name(currentMatch.firstPlayer.name).build();
-        Player player2 = Player.builder().id(currentMatch.secondPlayer.id).name(currentMatch.secondPlayer.name).build();
-        Player winner = Player.builder().id(currentMatch.winner.getWinnerId()).name(currentMatch.winner.getWinnerName()).build();
+        Player player1 =
+                Player.builder().id(currentMatch.getFirstPlayer().getId()).name(currentMatch.getFirstPlayer().getName()).build();
+        Player player2 =
+                Player.builder().id(currentMatch.getSecondPlayer().getId()).name(currentMatch.getSecondPlayer().getName()).build();
+        Player winner =
+                Player.builder().id(currentMatch.getWinner().getWinnerId()).name(currentMatch.getWinner().getWinnerName()).build();
         Match match = Match.builder().player1(player1).player2(player2).winner(winner).build();
         session.persist(match);
     }

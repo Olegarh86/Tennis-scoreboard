@@ -19,6 +19,7 @@
             color: #000;
             text-decoration: none;
             text-align: center;
+            margin-bottom: 20px;
         }
     </style>
 </head>

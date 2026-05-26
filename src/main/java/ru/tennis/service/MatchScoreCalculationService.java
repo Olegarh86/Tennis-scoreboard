@@ -1,6 +1,7 @@
 package ru.tennis.service;
 
 import ru.tennis.dto.CurrentMatch;
+import ru.tennis.dto.Winner;
 import ru.tennis.exceptions.InvalidWinnerIdException;
 import ru.tennis.gameState.Game;
 import ru.tennis.gameState.Score;
@@ -20,7 +21,7 @@ public class MatchScoreCalculationService {
     public void updateMatchState(CurrentMatch currentMatch, int winnerPlayerId) {
         addPointToWinner(currentMatch, winnerPlayerId);
 
-        if (currentMatch.getTieBreak()) {
+        if (currentMatch.isTieBreak()) {
             checkEndTieBreak(currentMatch);
             return;
         }
@@ -135,7 +136,6 @@ public class MatchScoreCalculationService {
         int secondPlayerSetsWin = currentMatch.getSecondPlayer().getGameSet().getValue();
 
         if (firstPlayerSetsWin == SETS_TO_WIN_MATCH || secondPlayerSetsWin == SETS_TO_WIN_MATCH) {
-            currentMatch.setEndMatch(true);
             determineWinner(currentMatch);
         }
     }
@@ -145,11 +145,12 @@ public class MatchScoreCalculationService {
         int secondPlayerSetsWin = currentMatch.getSecondPlayer().getGameSet().getValue();
 
         if (firstPlayerSetsWin == SETS_TO_WIN_MATCH) {
-            currentMatch.getWinner().setWinnerId(currentMatch.getFirstPlayer().getId());
-            currentMatch.getWinner().setWinnerName(currentMatch.getFirstPlayer().getName());
+            currentMatch.setWinner(new Winner(currentMatch.getFirstPlayer().getId(),
+                    currentMatch.getFirstPlayer().getName()));
         } else if (secondPlayerSetsWin == SETS_TO_WIN_MATCH) {
-            currentMatch.getWinner().setWinnerId(currentMatch.getSecondPlayer().getId());
-            currentMatch.getWinner().setWinnerName(currentMatch.getSecondPlayer().getName());
+            currentMatch.setWinner(new Winner(currentMatch.getSecondPlayer().getId(),
+                    currentMatch.getSecondPlayer().getName()));
+
         }
     }
 }

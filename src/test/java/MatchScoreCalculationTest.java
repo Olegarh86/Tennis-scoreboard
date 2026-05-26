@@ -1,261 +1,232 @@
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.tennis.dao.TennisDao;
+import ru.tennis.dao.TennisDaoImpl;
 import ru.tennis.dto.CurrentMatch;
+import ru.tennis.exceptions.InvalidWinnerIdException;
+import ru.tennis.exceptions.MatchNotFoundException;
+import ru.tennis.exceptions.SaveFinishedMatchException;
 import ru.tennis.gameState.Game;
 import ru.tennis.gameState.Score;
 import ru.tennis.gameState.GameSet;
 import ru.tennis.gameState.TieBreak;
 import ru.tennis.model.Player;
+import ru.tennis.service.FinishedMatchesPersistenceService;
 import ru.tennis.service.MatchScoreCalculationService;
+import ru.tennis.service.MatchScoreService;
 import ru.tennis.service.OngoingMatchesService;
+import ru.tennis.util.HibernateUtil;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MatchScoreCalculationTest {
     private CurrentMatch currentMatch;
     private MatchScoreCalculationService calculationService;
+    private OngoingMatchesService ongoingMatchesService;
+    private FinishedMatchesPersistenceService persistenceService;
+    private MatchScoreService matchScoreService;
 
     @BeforeEach
     public void createCurrentMatch() {
+        HibernateUtil.init("hibernate.cfg.xml");
+
         currentMatch = new CurrentMatch(
                 Player.builder().id(1).name("Ivan").build(),
                 Player.builder().id(2).name("John").build());
+        TennisDao tennisDao = new TennisDaoImpl();
         this.calculationService = new MatchScoreCalculationService();
+        this.ongoingMatchesService = new OngoingMatchesService();
+        this.persistenceService = new FinishedMatchesPersistenceService(tennisDao);
+        this.matchScoreService = new MatchScoreService(ongoingMatchesService, persistenceService, calculationService);
+    }
+
+    @AfterEach
+    public void destroyCurrentMatch() {
+        HibernateUtil.destroy();
     }
 
     @Test
     public void firstPlayerWinPointTest() {
-        currentMatch.firstPlayer.setScore(new Score(0));
-        currentMatch.secondPlayer.setScore(new Score(0));
+        currentMatch.getFirstPlayer().setScore(new Score(0));
+        currentMatch.getSecondPlayer().setScore(new Score(0));
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(15, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(15, currentMatch.getFirstPlayer().getScore().getValue());
+        assertEquals(0, currentMatch.getSecondPlayer().getScore().getValue());
     }
 
     @Test
-    public void playerWinGameTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(0));
+    public void firstPlayerWinGameTest() {
+        currentMatch.getFirstPlayer().setScore(new Score(40));
+        currentMatch.getSecondPlayer().setScore(new Score(0));
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(1, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(Game.ONE, currentMatch.getFirstPlayer().getGame());
+        assertEquals(Game.ZERO, currentMatch.getSecondPlayer().getGame());
     }
 
     @Test
-    public void playerWinSetTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(0));
-        currentMatch.firstPlayer.setGame(Game.SIX);
-        currentMatch.secondPlayer.setGame(Game.FIVE);
+    public void firstPlayerWinSetTest() {
+        currentMatch.getFirstPlayer().setScore(new Score(40));
+        currentMatch.getSecondPlayer().setScore(new Score(0));
+        currentMatch.getFirstPlayer().setGame(Game.SIX);
+        currentMatch.getSecondPlayer().setGame(Game.FIVE);
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(1, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(GameSet.ONE, currentMatch.getFirstPlayer().getGameSet());
     }
 
     @Test
     public void startTieBreakTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(0));
-        currentMatch.firstPlayer.setGame(Game.FIVE);
-        currentMatch.secondPlayer.setGame(Game.SIX);
+        currentMatch.getFirstPlayer().setScore(new Score(40));
+        currentMatch.getSecondPlayer().setScore(new Score(0));
+        currentMatch.getFirstPlayer().setGame(Game.FIVE);
+        currentMatch.getSecondPlayer().setGame(Game.SIX);
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(6, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(6, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(true, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(Game.SIX, currentMatch.getFirstPlayer().getGame());
+        assertEquals(Game.SIX, currentMatch.getSecondPlayer().getGame());
     }
 
     @Test
-    public void winTieBreakTest() {
-        currentMatch.firstPlayer.setScore(new TieBreak(6));
-        currentMatch.secondPlayer.setScore(new TieBreak(5));
-        currentMatch.firstPlayer.setGame(Game.SIX);
-        currentMatch.secondPlayer.setGame(Game.SIX);
-        currentMatch.firstPlayer.setGameSet(GameSet.ZERO);
-        currentMatch.secondPlayer.setGameSet(GameSet.ZERO);
-        currentMatch.tieBreak = true;
+    public void firstPlayerWinTieBreakTest() {
+        currentMatch.getFirstPlayer().setScore(new TieBreak(6));
+        currentMatch.getSecondPlayer().setScore(new TieBreak(5));
+        currentMatch.getFirstPlayer().setGame(Game.SIX);
+        currentMatch.getSecondPlayer().setGame(Game.SIX);
+        currentMatch.getFirstPlayer().setGameSet(GameSet.ZERO);
+        currentMatch.getSecondPlayer().setGameSet(GameSet.ZERO);
+        currentMatch.setTieBreak(true);
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(0, currentMatch.firstPlayer.score.getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.score.getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(1, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(GameSet.ONE, currentMatch.getFirstPlayer().getGameSet());
     }
 
     @Test
     public void notWinTieBreakTest() {
-        currentMatch.firstPlayer.setScore(new TieBreak(12345));
-        currentMatch.secondPlayer.setScore(new TieBreak(12345));
-        currentMatch.firstPlayer.setGame(Game.SIX);
-        currentMatch.secondPlayer.setGame(Game.SIX);
-        currentMatch.firstPlayer.setGameSet(GameSet.ZERO);
-        currentMatch.secondPlayer.setGameSet(GameSet.ZERO);
-        currentMatch.tieBreak = true;
+        currentMatch.getFirstPlayer().setScore(new TieBreak(12345));
+        currentMatch.getSecondPlayer().setScore(new TieBreak(12345));
+        currentMatch.getFirstPlayer().setGame(Game.SIX);
+        currentMatch.getSecondPlayer().setGame(Game.SIX);
+        currentMatch.getFirstPlayer().setGameSet(GameSet.ZERO);
+        currentMatch.getSecondPlayer().setGameSet(GameSet.ZERO);
+        currentMatch.setTieBreak(true);
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(12346, currentMatch.firstPlayer.score.getScore()),
-                () -> assertEquals(12345, currentMatch.secondPlayer.score.getScore()),
-                () -> assertEquals(6, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(6, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(true, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(12346, currentMatch.getFirstPlayer().getScore().getValue());
+        assertEquals(12345, currentMatch.getSecondPlayer().getScore().getValue());
+        assertTrue(currentMatch.isTieBreak());
     }
 
     @Test
     public void winMatchTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(0));
-        currentMatch.firstPlayer.setGame(Game.SIX);
-        currentMatch.secondPlayer.setGame(Game.FIVE);
-        currentMatch.firstPlayer.setGameSet(GameSet.ONE);
-        currentMatch.secondPlayer.setGameSet(GameSet.ZERO);
-        currentMatch.tieBreak = false;
+        currentMatch.getFirstPlayer().setScore(new Score(40));
+        currentMatch.getSecondPlayer().setScore(new Score(0));
+        currentMatch.getFirstPlayer().setGame(Game.SIX);
+        currentMatch.getSecondPlayer().setGame(Game.FIVE);
+        currentMatch.getFirstPlayer().setGameSet(GameSet.ONE);
+        currentMatch.getSecondPlayer().setGameSet(GameSet.ZERO);
+        currentMatch.setTieBreak(false);
         calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
-                () -> assertEquals(0, currentMatch.firstPlayer.score.getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.score.getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(2, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
+                () -> assertEquals(0, currentMatch.getFirstPlayer().getScore().getValue()),
+                () -> assertEquals(0, currentMatch.getSecondPlayer().getScore().getValue()),
+                () -> assertEquals(Game.ZERO, currentMatch.getFirstPlayer().getGame()),
+                () -> assertEquals(Game.ZERO, currentMatch.getSecondPlayer().getGame()),
+                () -> assertEquals(GameSet.TWO, currentMatch.getFirstPlayer().getGameSet()),
+                () -> assertEquals(GameSet.ZERO, currentMatch.getSecondPlayer().getGameSet()),
                 () -> assertEquals(1, currentMatch.getWinner().getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(true, currentMatch.endMatch)
+                () -> assertFalse(currentMatch.isTieBreak()),
+                () -> assertTrue(currentMatch.hasWinner())
         );
     }
 
     @Test
     public void scoreEqualAndFirstPlayerWinPointTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(40));
+        currentMatch.getFirstPlayer().setScore(new Score(40));
+        currentMatch.getSecondPlayer().setScore(new Score(40));
         calculationService.updateMatchState(currentMatch, 1);
         Assertions.assertAll(
-                () -> assertEquals(50, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(40, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
+                () -> assertEquals(50, currentMatch.getFirstPlayer().getScore().getValue()),
+                () -> assertEquals(40, currentMatch.getSecondPlayer().getScore().getValue())
         );
     }
 
     @Test
     public void scoreEqualAndSecondPlayerWinPointTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(40));
+        currentMatch.getFirstPlayer().setScore(new Score(40));
+        currentMatch.getSecondPlayer().setScore(new Score(40));
         calculationService.updateMatchState(currentMatch, 2);
         Assertions.assertAll(
-                () -> assertEquals(40, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(50, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
-    }
-
-    @Test
-    public void firstPlayerHaveAdvantageTest() {
-        currentMatch.firstPlayer.setScore(new Score(40));
-        currentMatch.secondPlayer.setScore(new Score(40));
-        calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(50, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(40, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
+                () -> assertEquals(40, currentMatch.getFirstPlayer().getScore().getValue()),
+                () -> assertEquals(50, currentMatch.getSecondPlayer().getScore().getValue())
         );
     }
 
     @Test
     public void firstPlayerWinGameWithAdvantageTest() {
-        currentMatch.firstPlayer.setScore(new Score(50));
-        currentMatch.secondPlayer.setScore(new Score(40));
+        currentMatch.getFirstPlayer().setScore(new Score(50));
+        currentMatch.getSecondPlayer().setScore(new Score(40));
         calculationService.updateMatchState(currentMatch, 1);
-        Assertions.assertAll(
-                () -> assertEquals(0, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(0, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(1, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
-        );
+        assertEquals(Game.ONE, currentMatch.getFirstPlayer().getGame());
     }
 
     @Test
     public void firstPlayerLosesAdvantageTest() {
-        currentMatch.firstPlayer.setScore(new Score(50));
-        currentMatch.secondPlayer.setScore(new Score(40));
+        currentMatch.getFirstPlayer().setScore(new Score(50));
+        currentMatch.getSecondPlayer().setScore(new Score(40));
         calculationService.updateMatchState(currentMatch, 2);
         Assertions.assertAll(
-                () -> assertEquals(40, currentMatch.firstPlayer.getScore().getScore()),
-                () -> assertEquals(40, currentMatch.secondPlayer.getScore().getScore()),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGame().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.firstPlayer.getGameSet().toString())),
-                () -> assertEquals(0, Integer.parseInt(currentMatch.secondPlayer.getGameSet().toString())),
-                () -> assertEquals(0, currentMatch.winner.getWinnerId()),
-                () -> assertEquals(false, currentMatch.tieBreak),
-                () -> assertEquals(false, currentMatch.endMatch)
+                () -> assertEquals(40, currentMatch.getFirstPlayer().getScore().getValue()),
+                () -> assertEquals(40, currentMatch.getSecondPlayer().getScore().getValue())
         );
+    }
+
+    @Test
+    public void matchScoreCalculationServiceThrowInvalidWinnerIdException() {
+        assertThrows(InvalidWinnerIdException.class,
+                () -> calculationService.updateMatchState(currentMatch, 1000));
+    }
+
+    @Test
+    public void matchScoreCalculationServiceThrowSaveFinishedMatchException() {
+        assertThrows(MatchNotFoundException.class,
+                () -> matchScoreService.updateCurrentMatch(1, ""));
+    }
+
+    @Test
+    public void ongoingMatchServiceAddAndGetNewCurrentMatch() {
+        String uuid = currentMatch.getUuid();
+        ongoingMatchesService.addMatch(currentMatch);
+        assertTrue(ongoingMatchesService.getCurrentMatch(uuid).isPresent());
+    }
+
+    @Test
+    public void ongoingMatchServiceDeleteCurrentMatch() {
+        String uuid = currentMatch.getUuid();
+        ongoingMatchesService.addMatch(currentMatch);
+        assertTrue(ongoingMatchesService.getCurrentMatch(uuid).isPresent());
+        ongoingMatchesService.deleteMatch(uuid);
+        assertFalse(ongoingMatchesService.getCurrentMatch(uuid).isPresent());
+    }
+
+    @Test
+    public void createNewPlayerAddToDataBaseAndGet() {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = null;
+        try (session) {
+            transaction = session.beginTransaction();
+            persistenceService.createNewPlayer(session, "Zahar");
+            transaction.commit();
+            Optional<Player> mayBeZahar = persistenceService.getPlayerByName(session, "Zahar");
+            Player zahar = mayBeZahar.get();
+            assertEquals("Zahar", zahar.getName());
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new SaveFinishedMatchException("Can't save match", e);
+        }
     }
 }

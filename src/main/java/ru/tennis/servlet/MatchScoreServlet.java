@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.context.ApplicationContext;
 import ru.tennis.dto.CurrentMatch;
+import ru.tennis.exceptions.MatchNotFoundException;
+import ru.tennis.exceptions.SaveFinishedMatchException;
 import ru.tennis.service.MatchScoreService;
 import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
@@ -72,18 +74,23 @@ public class MatchScoreServlet extends HttpServlet {
             return;
         }
 
-        CurrentMatch currentMatch = matchScoreService.updateCurrentMatch(id, matchUuid);
-        if (!currentMatch.getUuid().equals(matchUuid)) {
+        CurrentMatch currentMatch;
+        try {
+            currentMatch = matchScoreService.updateCurrentMatch(id, matchUuid);
+        } catch (MatchNotFoundException e) {
             resp.sendError(SC_BAD_REQUEST, "Match not found with id: " + matchUuid);
+            return;
+        } catch (SaveFinishedMatchException e) {
+            resp.sendError(SC_BAD_REQUEST, "Error in time saved new finished match");
             return;
         }
 
-        if (!currentMatch.endMatch) {
-            String paramValue = currentMatch.getUuid();
-            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID, paramValue));
-        } else {
+        if (currentMatch.hasWinner()) {
             String url = UrlBuilder.buildUrl("/matches", "page", "1", "filter_by_player_name", "");
             RedirectHelper.redirectResponse(req, resp, url);
+        } else {
+            String paramValue = currentMatch.getUuid();
+            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID, paramValue));
         }
     }
 

@@ -30,6 +30,6 @@ public enum GameSet {
     }
 
     public int getValue() {
-        return this.points;
+        return points;
     }
 }
