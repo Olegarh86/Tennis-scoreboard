@@ -1,3 +1,5 @@
+### [Ревью на реализацию проекта находится здесь](https://github.com/vasiliy-spb/review_tennis-scoreboard_for_Olegarhische-Olegarh86/blob/code-review/code-review/REVIEW_README.md)
+
 # Tennis Scoreboard
 
 Web application for tracking tennis matches with real-time score calculation based on official tennis rules.
