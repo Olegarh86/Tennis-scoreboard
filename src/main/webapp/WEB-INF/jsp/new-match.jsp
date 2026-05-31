@@ -20,6 +20,7 @@
           action="${pageContext.request.contextPath}/new-match"
           method="post">
 
+        <!-- Опечатка: 'c:forEach var="errors"' —> 'c:forEach var="error"' и '<li>${errors}</li>' —> '<li>${error}</li>' -->
         <div style="color: darkred">
             <c:if test="${not empty requestScope.errors}">
                 <c:forEach var="errors" items="${requestScope.errors}">

@@ -12,8 +12,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Версию Java лучше вынести в properties: -->
+<!--        <java.version>17</java.version>-->
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
+        <!-- Версии зависимостей (особенно повторяющиеся) тоже лучше вынести в properties -->
     </properties>
 
     <dependencyManagement>

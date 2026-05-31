@@ -11,6 +11,8 @@ public class TennisContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         HibernateUtil.init("hibernate.cfg.xml");
+
+        // Для помещения объектов в контекст можно использовать "естественные константы" — ClassName.class.getSimpleName() или ClassName.class.getName()
         sce.getServletContext().setAttribute("appContext", new ApplicationContext());
     }
 
