@@ -7,7 +7,6 @@ import ru.tennis.model.Player;
 
 import java.util.List;
 import java.util.Optional;
-
 public interface TennisDao {
     Player createNewTennisPlayer(Session session, String name);
 
