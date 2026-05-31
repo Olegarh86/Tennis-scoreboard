@@ -9,14 +9,40 @@ import ru.tennis.gameState.TieBreak;
 
 
 public class MatchScoreCalculationService {
-    private static final int ZERO = 0;
+
+    // Составные условия из if лучше выносить во вспомогательный метод с понятным названием.
+        // Это улучшит читаемость кода и позволит переиспользовать повторяющиеся условия без дублирования кода.
+
+    // TODO: Класс содержит в себе всю бизнес-логику по подсчёту очков, геймов и сетов.
+        // Объект, которым он оперирует (`CurrentMatch`), является "анемичной" моделью —
+        // простым контейнером данных практически без собственного поведения. Сервис напрямую читает и записывает его поля и изменяет внутренние объекты.
+        // Это главная архитектурная проблема этой части логики. По этим причинам:
+        //
+        //  - Нарушение инкапсуляции: Данные (в `CurrentMatch`) и поведение (в `MatchScoreCalculationService`) полностью разделены.
+            //  Любой другой сервис может так же напрямую изменить счёт матча, и объект `CurrentMatch` не сможет себя защитить.
+        //  - Процедурный стиль: Вместо объектно-ориентированного подхода, где объекты сами управляют своим состоянием
+            //  (и начисление очков происходит в духе `matchScore.pointWonBy(player)`), получается процедурный код,
+            //  который манипулирует внешними структурами данных.
+        //  - Жёсткая связанность (Tight Coupling) и низкая связность (Low Cohesion):
+            //  Сервис тесно связан с внутренним устройством `CurrentMatch`. При этом логика,
+            //  относящаяся к одному понятию (счёт), размазана по разным классам (модели и сервису).
+        //  - Сложность тестирования: Чтобы протестировать один конкретный сценарий (например, переход от "ровно" к "преимуществу"),
+            //  нужно разбираться во множестве `if` и переходов по методам. Это сложно и хрупко.
+        //
+        // Как исправить: Провести рефакторинг классов моделей с переходом к "богатой" доменной модели.
+
+    // TODO: Класс имеет высокую когнитивную сложность: чтобы понять, как меняется счёт, нужно проследить всю цепочку вызовов
+        // приватных методов внутри одного большого класса, держа в уме множество условий.
+        // Перенос логики в доменные модели значительно упростит её понимание, тестирование и поддержку.
+
+    private static final int ZERO = 0; // ZERO не является информативным названием
     private static final int DIFFERENCE_FOR_WIN = 2;
     private static final int SETS_TO_WIN_MATCH = 2;
     private static final int GAMES_TO_WIN_SET = 6;
     private static final int POINTS_TO_WIN_TIE_BREAK = 7;
-    private static final int ADVANTAGE_DIFFERENCE = 10;
+    private static final int ADVANTAGE_DIFFERENCE = 10; // Это значение не соответствует предметной области
     private static final int DEUCE_SCORE = 40;
-    private static final int ADVANTAGE_SCORE = 50;
+    private static final int ADVANTAGE_SCORE = 50; // Это значение не соответствует предметной области
 
     public void updateMatchState(CurrentMatch currentMatch, int winnerPlayerId) {
         addPointToWinner(currentMatch, winnerPlayerId);
@@ -44,6 +70,7 @@ public class MatchScoreCalculationService {
         int firstPlayerScores = currentMatch.getFirstPlayer().getScore().getScore();
         int secondPlayerScores = currentMatch.getSecondPlayer().getScore().getScore();
 
+        // Составные условия из if лучше выносить во вспомогательный метод с понятным названием
         if (firstPlayerScores > DEUCE_SCORE || secondPlayerScores > DEUCE_SCORE) {
             int difference = firstPlayerScores - secondPlayerScores;
 
@@ -85,9 +112,11 @@ public class MatchScoreCalculationService {
         int firstPlayerGames = currentMatch.getFirstPlayer().getGame().getValue();
         int secondPlayerGames = currentMatch.getSecondPlayer().getGame().getValue();
 
+        // Составные условия из if лучше выносить во вспомогательный метод с понятным названием
         if (firstPlayerGames >= GAMES_TO_WIN_SET || secondPlayerGames >= GAMES_TO_WIN_SET) {
             int difference = firstPlayerGames - secondPlayerGames;
 
+            // Составные условия из if лучше выносить во вспомогательный метод с понятным названием
             if (difference >= DIFFERENCE_FOR_WIN || difference <= -DIFFERENCE_FOR_WIN) {
                 winSet(currentMatch, difference);
                 return;
@@ -117,6 +146,11 @@ public class MatchScoreCalculationService {
         }
     }
 
+    // Уже на входе в этот метод нужно держать в уме комбинацию из 4-х условий в разных блоках if.
+        // Внутри этого метода используются длинные цепочки вызовов, а также вызывается
+        // метод `checkEndMatch()`, который тоже содержит условную логику и вызов ещё одного метода
+        // (`determineWinner()` тоже с условной логикой и длинными цепочками вызовов).
+        // Это создаёт избыточно большую когнитивную нагрузку для понимания этой логики.
     private void winSet(CurrentMatch currentMatch, int difference) {
         currentMatch.getFirstPlayer().setGame(Game.ZERO);
         currentMatch.getFirstPlayer().setScore(new Score(ZERO));
@@ -135,6 +169,7 @@ public class MatchScoreCalculationService {
         int firstPlayerSetsWin = currentMatch.getFirstPlayer().getGameSet().getValue();
         int secondPlayerSetsWin = currentMatch.getSecondPlayer().getGameSet().getValue();
 
+        // Составные условия из if лучше выносить во вспомогательный метод с понятным названием
         if (firstPlayerSetsWin == SETS_TO_WIN_MATCH || secondPlayerSetsWin == SETS_TO_WIN_MATCH) {
             determineWinner(currentMatch);
         }

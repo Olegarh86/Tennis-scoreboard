@@ -9,6 +9,10 @@ import ru.tennis.validation.PlayerNamesValidator;
 
 @Getter
 public class ApplicationContext {
+
+    // Лучше убрать `@Getter` с класса. И создать публичные геттеры только для тех сервисов верхнего уровня,
+        // которые нужны сервлетам. Внутренние компоненты (`dao`, `normalizer`) не должны быть доступны извне напрямую.
+
     private final TennisDao dao = new TennisDaoImpl();
     private final NameNormalizer normalizer = new NameNormalizer();
     private final PlayerNamesValidator validator = new PlayerNamesValidator(normalizer);

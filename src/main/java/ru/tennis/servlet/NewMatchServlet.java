@@ -17,11 +17,17 @@ import java.io.IOException;
 
 @WebServlet(name = "new-match", urlPatterns = "/new-match")
 public class NewMatchServlet extends HttpServlet {
+
+    // Все повторяющиеся или важные строковые литералы лучше выносить в `private static final` константы с понятными именами.
+        // Именованная константа делает код более семантически понятным.
+
     private PlayerNamesValidator validator;
     private CurrentMatchCreator currentMatchCreator;
 
     @Override
     public void init() {
+
+        // Для получения объектов из контекста можно использовать "естественные константы" — ClassName.class.getSimpleName() или ClassName.class.getName()
         ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
         validator = context.getValidator();
         currentMatchCreator = context.getCurrentMatchCreator();

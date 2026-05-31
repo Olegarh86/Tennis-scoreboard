@@ -39,6 +39,7 @@
             <th>Player Two</th>
             <th>Winner</th>
         </tr>
+        <!-- Сейчас так: 'c:forEach var="allMatches"', должно быть так: 'c:forEach var="match"' и соответствующее обращение в тегах <td> -->
         <c:forEach var="allMatches" items="${requestScope.matchesDto.allMatches}">
             <tr>
                 <td>${allMatches.player1.name}</td>
@@ -55,6 +56,7 @@
                 <
             </a>
 
+            <!-- Цикл от 1 до pageCount отображает сразу все существующие страницы. Лучше сделать окно пагинации ограниченным текущей страницей +-2 вокруг неё -->
             <div class="num-page">
                 <c:forEach var="count" begin="1" end="${requestScope.matchesDto.pageCount}">
 

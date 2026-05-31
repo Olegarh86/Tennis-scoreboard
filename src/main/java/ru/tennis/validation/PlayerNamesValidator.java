@@ -6,9 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerNamesValidator {
+
+    // Класс нарушает Принципа единственной ответственности (SRP). Он одновременно занимается:
+        // - валидацией имён
+        // - нормализацией имён
+        //
+        // Этот класс не должен знать о NameNormalizer и должен принимать на вход уже нормализованные данные.
+
+    // Приватные методы `check*` принимают список `errors` и изменяют его.
+        // Более чистый подход — когда методы возвращают результат своей работы
+        // (например, `Optional<String>` с текстом ошибки),
+        // а вызывающий код уже решает, что делать с этим результатом.
+
     private static final String ACCEPTABLE_SYMBOLS = "[A-Za-z'. -]+";
     private static final String ERROR_IMPOSSIBLE_SYMBOL = "The player's name must contain only Latin letters, spaces, hyphens or apostrophes";
     private static final String ERROR_NAMES_NOT_DIFFERENT = "Player can't play with yourself!";
+
+    // Лучше подставлять значения min и max через '%s'
     private static final String ERROR_LENGTH_NAME = "Player name length must be between 2 and 30 characters";
     private static final String ERROR_EMPTY_NAME = "Player name is empty";
     private static final int MIN_LENGTH = 2;
@@ -24,6 +38,8 @@ public class PlayerNamesValidator {
 
         if (playerName1 == null || playerName1.isBlank() || playerName2 == null || playerName2.isBlank()) {
             errors.add(ERROR_EMPTY_NAME);
+
+            // Раз в проекте есть нормализация имён, лучше чтобы нормализация имен всегда происходила до возврата `ValidationResult`.
             return new ValidationResult(errors, playerName1, playerName2);
         }
 
