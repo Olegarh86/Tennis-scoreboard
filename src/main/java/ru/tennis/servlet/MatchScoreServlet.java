@@ -24,9 +24,6 @@ import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 @WebServlet(name = "match-score", urlPatterns = "/match-score")
 public class MatchScoreServlet extends HttpServlet {
 
-    // Все повторяющиеся или важные строковые литералы лучше выносить в `private static final` константы с понятными именами.
-        // Именованная константа делает код более семантически понятным.
-
     // TODO: Сервлет передаёт в слой представления доменные модели (`CurrentMatch`).
         // Передача доменных моделей в JSP не является хорошей практикой. Это нарушает принцип разделения ответственности между слоями
         // и связывает слой представления с моделью данных (что чревато ошибками, например, в случае переименования полей).
@@ -36,17 +33,17 @@ public class MatchScoreServlet extends HttpServlet {
     // Логику обработки исключений можно реализовать в фильтре.
         // Так она будет централизована для всего приложения и её части не будут повторяться в разных местах.
 
+    private static final String UUID_PARAM = "uuid";
+    private static final String WINNER_PARAM = "winner";
     private MatchScoreService matchScoreService;
     private OngoingMatchesService ongoingMatchesService;
 
-    // Константы нужно объявлять первыми (самыми верхними) в классе
-    private static final String UUID = "uuid"; // Точнее назвать UUID_PARAM
-    private static final String WINNER = "winner"; // Точнее назвать WINNER_PARAM
 
     @Override
     public void init() {
 
         // Для получения объектов из контекста можно использовать "естественные константы" — ClassName.class.getSimpleName() или ClassName.class.getName()
+        String contextName = ApplicationContext.class.getSimpleName();
         ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
         ongoingMatchesService = context.getOngoingMatchesService();
         matchScoreService = context.getMatchScoreService();
@@ -54,9 +51,9 @@ public class MatchScoreServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String matchUuid = req.getParameter(UUID);
+        String matchUuid = req.getParameter(UUID_PARAM);
 
-        if (isMissing(resp, matchUuid, UUID)) {
+        if (isMissing(resp, matchUuid, UUID_PARAM)) {
             return;
         }
 
@@ -76,13 +73,13 @@ public class MatchScoreServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String winnerId = req.getParameter(WINNER);
-        String matchUuid = req.getParameter(UUID);
+        String winnerId = req.getParameter(WINNER_PARAM);
+        String matchUuid = req.getParameter(UUID_PARAM);
 
-        if (isMissing(resp, matchUuid, UUID)) {
+        if (isMissing(resp, matchUuid, UUID_PARAM)) {
             return;
         }
-        if (isMissing(resp, winnerId, WINNER)) {
+        if (isMissing(resp, winnerId, WINNER_PARAM)) {
             return;
         }
 
@@ -96,7 +93,7 @@ public class MatchScoreServlet extends HttpServlet {
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            resp.sendError(SC_BAD_REQUEST, "Incorrect parameter: " + WINNER);
+            resp.sendError(SC_BAD_REQUEST, "Incorrect parameter: " + WINNER_PARAM);
             return;
         }
 
@@ -123,7 +120,7 @@ public class MatchScoreServlet extends HttpServlet {
 
             // Точнее назвать matchIdValue
             String paramValue = currentMatch.getUuid();
-            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID, paramValue));
+            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID_PARAM, paramValue));
         }
     }
 

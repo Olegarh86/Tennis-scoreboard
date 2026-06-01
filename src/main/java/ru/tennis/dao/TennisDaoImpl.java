@@ -44,7 +44,7 @@ public class TennisDaoImpl implements TennisDao {
     // TODO: DAO не должен знать, как создаются объекты. Он должен просто получать готовый объект и выполнять с ним нужную операцию.
     @Override
     public Player createNewTennisPlayer(Session session, String name) {
-        Player player = Player.builder().name(name).build();
+        Player player = new Player(name);
         session.persist(player);
         return player;
     }

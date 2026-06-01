@@ -1,5 +1,6 @@
 package ru.tennis.servlet;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,17 +11,10 @@ import ru.tennis.util.JspHelper;
 
 import java.io.IOException;
 
+
 @Slf4j
 @WebServlet(name = "errorPage", urlPatterns = "/errorPage")
 public class ErrorServlet extends HttpServlet {
-
-    // Все повторяющиеся или важные строковые литералы лучше выносить в `private static final` константы с понятными именами.
-        // Именованная константа делает код более семантически понятным.
-
-    // Вместо вручную объявленных констант лучше использовать стандартные константы из RequestDispatcher:
-    private static final String ATTRIBUTE_ERROR_CODE = "jakarta.servlet.error.status_code"; // RequestDispatcher.ERROR_STATUS_CODE
-    private static final String ATTRIBUTE_ERROR_MESSAGE = "jakarta.servlet.error.message"; // RequestDispatcher.ERROR_MESSAGE
-    private static final String ATTRIBUTE_EXCEPTION = "jakarta.servlet.error.exception"; // RequestDispatcher.ERROR_EXCEPTION
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -37,14 +31,14 @@ public class ErrorServlet extends HttpServlet {
         String message = "Unknown Error";
         Throwable exception = null;
 
-        if (req.getAttribute(ATTRIBUTE_ERROR_CODE) != null) {
-            code = req.getAttribute(ATTRIBUTE_ERROR_CODE).toString();
+        if (req.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) != null) {
+            code = req.getAttribute(RequestDispatcher.ERROR_STATUS_CODE).toString();
         }
 
-        if (req.getAttribute(ATTRIBUTE_ERROR_MESSAGE) != null) {
-            message = req.getAttribute(ATTRIBUTE_ERROR_MESSAGE).toString();
+        if (req.getAttribute(RequestDispatcher.ERROR_MESSAGE) != null) {
+            message = req.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
         }
-        Object exceptionObj = req.getAttribute(ATTRIBUTE_EXCEPTION);
+        Object exceptionObj = req.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
         if (exceptionObj instanceof Throwable) {
             exception = (Throwable) exceptionObj;
         }
