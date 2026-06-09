@@ -6,31 +6,34 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.context.ApplicationContext;
-import ru.tennis.service.CurrentMatchCreator;
+import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
+import ru.tennis.util.NameNormalizer;
 import ru.tennis.util.RedirectHelper;
 import ru.tennis.util.UrlBuilder;
-import ru.tennis.validation.PlayerNamesValidator;
-import ru.tennis.validation.ValidationResult;
+import ru.tennis.validation.Validator;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @WebServlet(name = "new-match", urlPatterns = "/new-match")
 public class NewMatchServlet extends HttpServlet {
-
-    // Все повторяющиеся или важные строковые литералы лучше выносить в `private static final` константы с понятными именами.
-        // Именованная константа делает код более семантически понятным.
-
-    private PlayerNamesValidator validator;
-    private CurrentMatchCreator currentMatchCreator;
+    private static final String PLAYER_NAME_1_PARAM = "playerName1";
+    private static final String PLAYER_NAME_2_PARAM = "playerName2";
+    private static final String UUID_PARAM = "uuid";
+    private static final String ERRORS_PARAM = "errors";
+    private static final String PATH_MATCH_SCORE = "/match-score";
+    private Validator validator;
+    private OngoingMatchesService ongoingMatchesService;
 
     @Override
     public void init() {
-
-        // Для получения объектов из контекста можно использовать "естественные константы" — ClassName.class.getSimpleName() или ClassName.class.getName()
-        ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
+        ApplicationContext context = (ApplicationContext) getServletContext()
+                .getAttribute(ApplicationContext.class.getSimpleName());
         validator = context.getValidator();
-        currentMatchCreator = context.getCurrentMatchCreator();
+        ongoingMatchesService = context.getOngoingMatchesService();
     }
 
     @Override
@@ -40,25 +43,23 @@ public class NewMatchServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String playerName1 = "playerName1";
-        String playerName2 = "playerName2";
-        String paramNameUuid = "uuid";
-        String name1 = req.getParameter(playerName1);
-        String name2 = req.getParameter(playerName2);
+        String name1 = req.getParameter(PLAYER_NAME_1_PARAM);
+        String name2 = req.getParameter(PLAYER_NAME_2_PARAM);
 
-        ValidationResult validationResult = validator.validate(name1, name2);
+        String normalizedName1 = NameNormalizer.normalizePlayerName(name1);
+        String normalizedName2 = NameNormalizer.normalizePlayerName(name2);
 
-        if (validationResult.hasErrors()) {
-            req.setAttribute("errors", validationResult.errors());
-            req.setAttribute(playerName1, validationResult.normalName1());
-            req.setAttribute(playerName2, validationResult.normalName2());
-            forwardToNewMatch(req, resp);
-        } else {
-            String newMatchUuid = currentMatchCreator.createNewCurrentMatch(validationResult.normalName1(),
-                    validationResult.normalName2());
-            String path = "/match-score";
-            String url = UrlBuilder.buildUrl(path, paramNameUuid, newMatchUuid);
+        List<String> errors = validator.validatePlayerNames(normalizedName1, normalizedName2);
+
+        if (errors.isEmpty()) {
+            UUID newMatchUuid = ongoingMatchesService.createNewCurrentMatch(normalizedName1, normalizedName2);
+            String url = UrlBuilder.buildUrl(PATH_MATCH_SCORE, Map.of(UUID_PARAM, newMatchUuid.toString()));
             RedirectHelper.redirectResponse(req, resp, url);
+        } else {
+            req.setAttribute(ERRORS_PARAM, errors);
+            req.setAttribute(PLAYER_NAME_1_PARAM, normalizedName1);
+            req.setAttribute(PLAYER_NAME_2_PARAM, normalizedName2);
+            forwardToNewMatch(req, resp);
         }
     }
 
@@ -66,4 +67,3 @@ public class NewMatchServlet extends HttpServlet {
         req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
     }
 }
-

@@ -1,22 +1,19 @@
 package ru.tennis.util;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.text.WordUtils;
 
+@UtilityClass
 public class NameNormalizer {
-
-    // Можно сделать класс утилитным, например, с помощью @UtilityClass
-
     private static final String MANY_SPACES = "\\s+";
     private static final String ONE_SPACE = " ";
 
     public String normalizePlayerName(String playerName) {
-        if (playerName == null) {
+        if (playerName == null || playerName.isBlank()) {
             return "";
         }
-
-        // Точнее назвать trimmedName
-        String trimName = playerName.trim();
-        trimName = trimName.replaceAll(MANY_SPACES, ONE_SPACE);
-        return WordUtils.capitalizeFully(trimName);
+        String trimmedName = playerName.trim();
+        trimmedName = trimmedName.replaceAll(MANY_SPACES, ONE_SPACE);
+        return WordUtils.capitalizeFully(trimmedName);
     }
 }

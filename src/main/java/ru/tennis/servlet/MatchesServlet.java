@@ -6,39 +6,25 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.context.ApplicationContext;
-import ru.tennis.dto.MatchesDto;
+import ru.tennis.dto.MatchPageDto;
 import ru.tennis.service.MatchesService;
 import ru.tennis.util.*;
 
 import java.io.IOException;
-
-import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import java.util.Map;
 
 @WebServlet(name = "matches", urlPatterns = "/matches")
 public class MatchesServlet extends HttpServlet {
-
-    // TODO: Сервлет передаёт в слой представления JPA сущности (`List<Match> allMatches` в MatchesDto).
-        // Передача Entity объектов в JSP не является хорошей практикой.
-        // Это может привести к проблемам производительности (например, ленивая загрузка)
-        // и безопасности (например, случайная передача чувствительных данных).
-        // Кроме того, это связывает слой представления с моделью данных.
-        // Лучше использовать DTO (Data Transfer Object) для передачи данных в представление.
-        // DTO позволяют контролировать, какие именно данные передаются.
-
-    // Логику обработки исключений можно реализовать в фильтре.
-        // Так она будет централизована для всего приложения и её части не будут повторяться в разных местах.
-
     private static final String PAGE_PARAM = "page";
     private static final String FILTER_PARAM = "filter_by_player_name";
-    private NameNormalizer nameNormalizer;
+    private static final int PAGE_SIZE = 7;
+    private static final String FIRST_PAGE = "1";
     private MatchesService matchesService;
 
     @Override
     public void init() {
-
-        // Для получения объектов из контекста можно использовать "естественные константы" — ClassName.class.getSimpleName() или ClassName.class.getName()
-        ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
-        nameNormalizer = context.getNormalizer();
+        ApplicationContext context = (ApplicationContext) getServletContext()
+                .getAttribute(ApplicationContext.class.getSimpleName());
         matchesService = context.getMatchesService();
     }
 
@@ -47,31 +33,23 @@ public class MatchesServlet extends HttpServlet {
         String pageNumber = req.getParameter("page");
         String playerName = req.getParameter("filter_by_player_name");
 
-        String normalName = nameNormalizer.normalizePlayerName(playerName);
+        String normalName = NameNormalizer.normalizePlayerName(playerName);
+        Integer page = Parser.parseNumber(pageNumber);
 
-        Integer page = parsePage(resp, pageNumber);
-        if (page == null) return;
-        MatchesDto matchesDto = matchesService.getMatchesDto(normalName, page);
-
-        if (matchesDto.needsRedirect()) {
-            String url = UrlBuilder.buildUrl("/matches", PAGE_PARAM, String.valueOf(matchesDto.page()), FILTER_PARAM, matchesDto.playerName());
+        if (page < 1) {
+            String url = UrlBuilder.buildUrl("/matches", Map.of(PAGE_PARAM, FIRST_PAGE, FILTER_PARAM, normalName));
             RedirectHelper.redirectResponse(req, resp, url);
             return;
         }
+        MatchPageDto matchPageDto = matchesService.getMatchPageDto(normalName, page, PAGE_SIZE);
 
-        // TODO: Сервлет не должен передавать JPA Entity во View.
-        req.setAttribute("matchesDto", matchesDto);
-        req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
-    }
-
-    private static Integer parsePage(HttpServletResponse resp, String pageNumber) throws IOException {
-        int page = 0;
-        try {
-            page = Integer.parseInt(pageNumber);
-        } catch (Exception e) {
-            resp.sendError(SC_BAD_REQUEST, "Incorrect parameter: " + PAGE_PARAM);
-            return null;
+        if (matchPageDto.page() > matchPageDto.pageCount()) {
+            String url = UrlBuilder.buildUrl("/matches", Map.of(PAGE_PARAM, String.valueOf(matchPageDto.pageCount()),
+                    FILTER_PARAM, normalName));
+            RedirectHelper.redirectResponse(req, resp, url);
+            return;
         }
-        return page;
+        req.setAttribute("matchesDto", matchPageDto);
+        req.getRequestDispatcher(JspHelper.getPath("matches")).forward(req, resp);
     }
 }

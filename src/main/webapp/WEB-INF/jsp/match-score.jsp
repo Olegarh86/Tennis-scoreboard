@@ -1,10 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<jsp:useBean id="currentMatch" scope="request" class="ru.tennis.dto.CurrentMatch"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Current currentMatch</title>
+    <title>CurrentMatch</title>
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/style.css"/>
     <link rel="icon" href="${pageContext.request.contextPath}/favicon1.ico" type="image/x-icon">
@@ -26,34 +25,34 @@
                 <th></th>
             </tr>
             <tr class="player1 td table tr">
-                <td class="player1"><c:out value="${currentMatch.firstPlayer.name}"/></td>
-                <td><c:out value="${currentMatch.firstPlayer.gameSet}"/></td>
-                <td><c:out value="${currentMatch.firstPlayer.game}"/></td>
-                <td><c:out value="${currentMatch.firstPlayer.score.toString()}"/></td>
+                <td class="player1"><c:out value="${requestScope.currentMatchDto.firstPlayerName}"/></td>
+                <td><c:out value="${requestScope.currentMatchDto.firstPlayerMatch}"/></td>
+                <td><c:out value="${requestScope.currentMatchDto.firstPlayerSet}"/></td>
+                <td><c:out value="${requestScope.currentMatchDto.firstPlayerPoints}"/></td>
                 <td>
-                    <form action="${pageContext.request.contextPath}/match-score?uuid=${param.uuid}"
+                    <form action="${pageContext.request.contextPath}/match-score?uuid=${param.get("uuid")}"
                           method="post">
                         <button class="score-btn table-text"
                                 type="submit"
                                 name="winner"
-                                value="${currentMatch.firstPlayer.id}">
+                                value="1">
                             score
                         </button>
                     </form>
                 </td>
             </tr>
             <tr class="player2 td table tr">
-                <td class="player2"><c:out value="${currentMatch.secondPlayer.name}"/></td>
-                <td><c:out value="${currentMatch.secondPlayer.gameSet}"/></td>
-                <td><c:out value="${currentMatch.secondPlayer.game}"/></td>
-                <td><c:out value="${currentMatch.secondPlayer.score.toString()}"/></td>
+                <td class="player2"><c:out value="${requestScope.currentMatchDto.secondPlayerName}"/></td>
+                <td><c:out value="${requestScope.currentMatchDto.secondPlayerMatch}"/></td>
+                <td><c:out value="${requestScope.currentMatchDto.secondPlayerSet}"/></td>
+                <td><c:out value="${requestScope.currentMatchDto.secondPlayerPoints}"/></td>
                 <td>
                     <form action="${pageContext.request.contextPath}/match-score?uuid=${param.uuid}"
                           method="post">
                         <button class="score-btn table-text"
                                 type="submit"
                                 name="winner"
-                                value="${currentMatch.secondPlayer.id}">
+                                value="2">
                             score
                         </button>
                     </form>

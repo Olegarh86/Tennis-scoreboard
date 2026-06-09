@@ -2,28 +2,45 @@ package ru.tennis.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.util.Map;
+
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @UtilityClass
 public class UrlBuilder {
+    private static final String START_PARAMETERS = "?";
+    private static final String VALUE = "=";
+    private static final String PARAMETERS_DELIMITER = "&";
 
-    // Все повторяющиеся или важные строковые литералы лучше выносить в `private static final` константы с понятными именами.
-        // Именованная константа делает код более семантически понятным.
+    public String buildUrl(String path, Map<String, String> nameValueParameters) {
+        StringBuilder url = new StringBuilder(path).append(START_PARAMETERS);
 
-    public String buildUrl(String path, String paramName, String paramValue) {
-        String encodedParam = encode(paramValue, UTF_8);
-        return path.concat("?").concat(paramName).concat("=").concat(encodedParam);
+        if (!nameValueParameters.isEmpty()) {
+            boolean first = true;
+
+            for (Map.Entry<String, String> entry : nameValueParameters.entrySet()) {
+
+                if (!first) {
+                    url.append(PARAMETERS_DELIMITER);
+                }
+                url.append(entry.getKey())
+                        .append(VALUE)
+                        .append(encode(entry.getValue(), UTF_8));
+                first = false;
+            }
+        }
+        return url.toString();
     }
 
-    // Можно принимать Map<String, String> nameValueParams
-    public String buildUrl(String path, String paramName1, String paramValue1, String paramName2, String paramValue2) {
-        String encodedParam1 = encode(paramValue1, UTF_8);
-        String encodedParam2 = encode(paramValue2, UTF_8);
+//    private void ipopiou(int x) {
+//        if(x > 5-3 || x < 5-3) {
+//            current;
+//            if(x == 5) {
+//                current bold;
+//            }
+//        }
+//
+//    }
 
-        // Вместо String.concat() можно использовать StringBuilder или Stream API и Collectors.joining()
-        return path.concat("?")
-                .concat(paramName1).concat("=").concat(encodedParam1).concat("&")
-                .concat(paramName2).concat("=").concat(encodedParam2);
-    }
 }

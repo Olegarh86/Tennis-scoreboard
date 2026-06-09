@@ -1,26 +1,59 @@
 package ru.tennis.context;
 
 import lombok.Getter;
-import ru.tennis.dao.TennisDao;
-import ru.tennis.dao.TennisDaoImpl;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import ru.tennis.dao.MatchDao;
+import ru.tennis.dao.MatchDaoImpl;
+import ru.tennis.dao.PlayerDao;
+import ru.tennis.dao.PlayerDaoImpl;
 import ru.tennis.service.*;
-import ru.tennis.util.NameNormalizer;
-import ru.tennis.validation.PlayerNamesValidator;
+import ru.tennis.validation.Validator;
 
-@Getter
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class ApplicationContext {
 
-    // Лучше убрать `@Getter` с класса. И создать публичные геттеры только для тех сервисов верхнего уровня,
-        // которые нужны сервлетам. Внутренние компоненты (`dao`, `normalizer`) не должны быть доступны извне напрямую.
+    private final SessionFactory sessionFactory;
+    @Getter
+    private final Validator validator;
+    @Getter
+    private final FinishedMatchesPersistenceService persistenceService;
+    @Getter
+    private final OngoingMatchesService ongoingMatchesService;
+    @Getter
+    private final MatchScoreService matchScoreService;
+    @Getter
+    private final MatchesService matchesService;
 
-    private final TennisDao dao = new TennisDaoImpl();
-    private final NameNormalizer normalizer = new NameNormalizer();
-    private final PlayerNamesValidator validator = new PlayerNamesValidator(normalizer);
-    private final FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService(dao);
-    private final OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
-    private final CurrentMatchCreator currentMatchCreator = new CurrentMatchCreator(persistenceService, ongoingMatchesService);
-    private final MatchScoreCalculationService calculationService = new MatchScoreCalculationService();
-    private final MatchScoreService matchScoreService = new MatchScoreService(ongoingMatchesService,
-            persistenceService, calculationService);
-    private final MatchesService matchesService = new MatchesService(persistenceService);
+    public ApplicationContext() {
+        PlayerDao playerDao = new PlayerDaoImpl();
+        MatchDao matchDao = new MatchDaoImpl();
+        sessionFactory = buildSessionFactory();
+        this.validator = new Validator();
+        this.persistenceService = new FinishedMatchesPersistenceServiceImpl(playerDao, matchDao, sessionFactory);
+        this.ongoingMatchesService = new OngoingMatchesServiceImpl(persistenceService);
+        this.matchScoreService = new MatchScoreServiceImpl(ongoingMatchesService, persistenceService);
+        this.matchesService = new MatchesServiceImpl(persistenceService);
+    }
+
+    private SessionFactory buildSessionFactory() {
+        Properties prop = new Properties();
+        try (InputStream in = ApplicationContext.class.getClassLoader().getResourceAsStream("db.properties")) {
+            prop.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String configFile = "hibernate.cfg.xml";
+        Configuration cfg = new Configuration().configure(configFile);
+        cfg.setProperty("hibernate.connection.username", prop.getProperty("db.username"));
+        cfg.setProperty("hibernate.connection.password", prop.getProperty("db.password"));
+        return cfg.buildSessionFactory();
+    }
+
+    public void close() {
+        sessionFactory.close();
+    }
 }

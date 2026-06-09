@@ -6,6 +6,7 @@ mvnw.cmd
 !**/src/main/**/target/
 !**/src/test/**/target/
 *.properties
+db.properties
 
 logs/
 *.log

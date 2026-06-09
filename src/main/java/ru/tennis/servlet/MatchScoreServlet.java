@@ -6,68 +6,48 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.tennis.context.ApplicationContext;
-import ru.tennis.dto.CurrentMatch;
-import ru.tennis.exceptions.MatchNotFoundException;
-import ru.tennis.exceptions.SaveFinishedMatchException;
+import ru.tennis.dto.CurrentMatchDto;
+import ru.tennis.exception.IncorrectParameterException;
 import ru.tennis.service.MatchScoreService;
 import ru.tennis.service.OngoingMatchesService;
 import ru.tennis.util.JspHelper;
+import ru.tennis.util.Parser;
 import ru.tennis.util.RedirectHelper;
 import ru.tennis.util.UrlBuilder;
+import ru.tennis.validation.Validator;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
-
-import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import java.util.UUID;
 
 @WebServlet(name = "match-score", urlPatterns = "/match-score")
 public class MatchScoreServlet extends HttpServlet {
-
-    // TODO: Сервлет передаёт в слой представления доменные модели (`CurrentMatch`).
-        // Передача доменных моделей в JSP не является хорошей практикой. Это нарушает принцип разделения ответственности между слоями
-        // и связывает слой представления с моделью данных (что чревато ошибками, например, в случае переименования полей).
-        // Лучше использовать DTO (Data Transfer Object) для передачи данных в представление.
-        // DTO позволяют контролировать, какие именно данные передаются.
-
-    // Логику обработки исключений можно реализовать в фильтре.
-        // Так она будет централизована для всего приложения и её части не будут повторяться в разных местах.
-
     private static final String UUID_PARAM = "uuid";
     private static final String WINNER_PARAM = "winner";
     private MatchScoreService matchScoreService;
     private OngoingMatchesService ongoingMatchesService;
+    private Validator validator;
 
 
     @Override
     public void init() {
-
-        // Для получения объектов из контекста можно использовать "естественные константы" — ClassName.class.getSimpleName() или ClassName.class.getName()
-        String contextName = ApplicationContext.class.getSimpleName();
-        ApplicationContext context = (ApplicationContext) getServletContext().getAttribute("appContext");
+        ApplicationContext context = (ApplicationContext) getServletContext()
+                .getAttribute(ApplicationContext.class.getSimpleName());
         ongoingMatchesService = context.getOngoingMatchesService();
         matchScoreService = context.getMatchScoreService();
+        validator = context.getValidator();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String matchUuid = req.getParameter(UUID_PARAM);
 
-        if (isMissing(resp, matchUuid, UUID_PARAM)) {
-            return;
-        }
+        validator.validateParameter(matchUuid);
+        UUID uuid = Parser.parseUuid(matchUuid);
 
-        // Парсить UUID нужно в сервлете и только после этого передавать объект UUID (а не String) в сервис
-        // Понятнее было бы название CurrentMatchOptional
-        Optional<CurrentMatch> mayBeMatch = ongoingMatchesService.getCurrentMatch(matchUuid);
-
-        if (mayBeMatch.isEmpty()) {
-            resp.sendError(SC_NOT_FOUND, "Match not found");
-            return;
-        }
-
-        // TODO: Сервлет не должен передавать доменные модели во View
-        req.setAttribute("currentMatch", mayBeMatch.get());
+        CurrentMatchDto currentMatchDto = ongoingMatchesService.getCurrentMatchDto(uuid);
+        req.setAttribute("currentMatchDto", currentMatchDto);
         req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
     }
 
@@ -76,61 +56,23 @@ public class MatchScoreServlet extends HttpServlet {
         String winnerId = req.getParameter(WINNER_PARAM);
         String matchUuid = req.getParameter(UUID_PARAM);
 
-        if (isMissing(resp, matchUuid, UUID_PARAM)) {
-            return;
+        validator.validateParameter(matchUuid);
+        validator.validateParameter(winnerId);
+        Integer id = Parser.parseNumber(winnerId);
+
+        if (id < 0) {
+            throw new IncorrectParameterException("Winner id can't less than zero. Winner id: " + winnerId);
         }
-        if (isMissing(resp, winnerId, WINNER_PARAM)) {
-            return;
-        }
+        UUID uuid = Parser.parseUuid(matchUuid);
 
-        // Логику парсинга ID лучше вынести во вспомогательный метод
-        int id;
-        try {
-            id = Integer.parseInt(winnerId);
-            if (id < 0) {
+        Optional<UUID> uuidOptional = matchScoreService.updateCurrentMatch(id, uuid);
 
-                // Управление потоком выполнения через исключения является антипаттерном
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e) {
-            resp.sendError(SC_BAD_REQUEST, "Incorrect parameter: " + WINNER_PARAM);
-            return;
-        }
-
-        // TODO: Сервлет не должен работать с доменными моделями — достаточно получать из сервиса ID матча
-        CurrentMatch currentMatch;
-        try {
-            currentMatch = matchScoreService.updateCurrentMatch(id, matchUuid);
-
-        // Логику обработки исключений можно реализовать в фильтре.
-        } catch (MatchNotFoundException e) {
-            resp.sendError(SC_BAD_REQUEST, "Match not found with id: " + matchUuid);
-            return;
-        } catch (SaveFinishedMatchException e) {
-            resp.sendError(SC_BAD_REQUEST, "Error in time saved new finished match");
-            return;
-        }
-
-        if (currentMatch.hasWinner()) {
-
-            // Здесь не нужно указывать пустое значение фильтра
-            String url = UrlBuilder.buildUrl("/matches", "page", "1", "filter_by_player_name", "");
+        if (uuidOptional.isEmpty()) {
+            String url = UrlBuilder.buildUrl("/matches", Map.of("page", "1"));
             RedirectHelper.redirectResponse(req, resp, url);
         } else {
-
-            // Точнее назвать matchIdValue
-            String paramValue = currentMatch.getUuid();
-            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", UUID_PARAM, paramValue));
+            RedirectHelper.redirectResponse(req, resp, UrlBuilder.buildUrl("/match-score", Map.of(UUID_PARAM,
+                    uuidOptional.get().toString())));
         }
-    }
-
-    // Этот метод не должен отправлять ответ с ошибкой — эта логика должна быть в вызывающем методе.
-    // Этому методу не нужно быть static
-    private static boolean isMissing(HttpServletResponse resp, String value, String paramName) throws IOException {
-        if (value == null || value.isBlank()) {
-            resp.sendError(SC_BAD_REQUEST, "Missing parameter " + paramName);
-            return true;
-        }
-        return false;
     }
 }

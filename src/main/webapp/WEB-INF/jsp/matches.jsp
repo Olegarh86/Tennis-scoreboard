@@ -28,6 +28,12 @@
                placeholder="Find matches by player name"/>
 
         <button class="btn-filter"
+                type="button"
+                onclick="window.location='${pageContext.request.contextPath}/matches?page=1'">
+            Reset
+        </button>
+        <button class="btn-filter"
+                value="${param.filter_by_player_name}"
                 type="submit">
             Find
         </button>
@@ -39,12 +45,11 @@
             <th>Player Two</th>
             <th>Winner</th>
         </tr>
-        <!-- Сейчас так: 'c:forEach var="allMatches"', должно быть так: 'c:forEach var="match"' и соответствующее обращение в тегах <td> -->
-        <c:forEach var="allMatches" items="${requestScope.matchesDto.allMatches}">
+        <c:forEach var="match" items="${requestScope.matchesDto.allMatches}">
             <tr>
-                <td>${allMatches.player1.name}</td>
-                <td>${allMatches.player2.name}</td>
-                <td><span class="winner-name-td">${allMatches.winner.name}</span></td>
+                <td>${match.player1Name}</td>
+                <td>${match.player2Name}</td>
+                <td><span class="winner-name-td">${match.winnerName}</span></td>
             </tr>
         </c:forEach>
     </table>
@@ -53,30 +58,39 @@
         <div class="pagination">
             <a class="prev"
                href="matches?page=${param.page - 1}&filter_by_player_name=${param.filter_by_player_name}">
-                <
+                <c:if test="${param.page > 1}">
+                    <
+                </c:if>
             </a>
 
-            <!-- Цикл от 1 до pageCount отображает сразу все существующие страницы. Лучше сделать окно пагинации ограниченным текущей страницей +-2 вокруг неё -->
             <div class="num-page">
                 <c:forEach var="count" begin="1" end="${requestScope.matchesDto.pageCount}">
 
                     <c:choose>
-                        <c:when test="${requestScope.matchesDto.page == count}">
-                            <span class="current">${count}</span>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="matches?page=${count}&filter_by_player_name=${param.filter_by_player_name}">
-                                    ${count}
-                            </a>
-                        </c:otherwise>
-                    </c:choose>
+                        <c:when test="${requestScope.matchesDto.page > count - 3 and requestScope.matchesDto.page < count + 3}">
 
+                            <c:choose>
+                                <c:when test="${requestScope.matchesDto.page == count}">
+                                    <a href="matches?page=${count}&filter_by_player_name=${param.filter_by_player_name}">
+                                        <span class="current">${count}</span>
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="matches?page=${count}&filter_by_player_name=${param.filter_by_player_name}">
+                                        ${count}
+                                    </a>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:when>
+                    </c:choose>
                 </c:forEach>
             </div>
 
             <a class="next"
                href="matches?page=${param.page + 1}&filter_by_player_name=${param.filter_by_player_name}">
-                >
+                <c:if test="${param.page != requestScope.matchesDto.pageCount}">
+                    >
+                </c:if>
             </a>
         </div>
     </c:if>
