@@ -143,7 +143,7 @@ public class FinishedMatchesPersistenceServiceImpl implements FinishedMatchesPer
         throw new MatchNotFoundException(currentMatch.getUuid().toString());
     }
 
-    private static void safeRollback(Transaction transaction, Exception originalException) {
+    private void safeRollback(Transaction transaction, Exception originalException) {
         if (transaction != null && transaction.isActive()) {
             try {
                 transaction.rollback();

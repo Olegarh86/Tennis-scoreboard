@@ -12,13 +12,19 @@ public class MatchDaoImpl extends BaseDaoImpl<Match> implements MatchDao {
     private static final String GET_ALL_MATCHES_QUERY = """
             SELECT m
                         FROM Match m
-                        ORDER BY id DESC""";
+                        JOIN FETCH m.player1
+                        JOIN FETCH m.player2
+                        JOIN FETCH m.winner
+                        ORDER BY m.id DESC""";
     private static final String GET_ALL_MATCHES_BY_NAME_QUERY = """
             SELECT m
                         FROM Match m
+                        JOIN FETCH m.player1
+                        JOIN FETCH m.player2
+                        JOIN FETCH m.winner
                         WHERE m.player1.name = :playerName
                            OR m.player2.name = :playerName
-                        ORDER BY id DESC""";
+                        ORDER BY m.id DESC""";
     private static final String GET_TOTAL_NUMBER_MATCHES = """
             SELECT count(*)
                         FROM Match""";
@@ -39,7 +45,7 @@ public class MatchDaoImpl extends BaseDaoImpl<Match> implements MatchDao {
                 .setParameter(PLAYER_NAME, playerName)
                 .setFirstResult(offset)
                 .setMaxResults(pageSize)
-                .list();
+                .getResultList();
     }
 
     @Override
@@ -47,7 +53,7 @@ public class MatchDaoImpl extends BaseDaoImpl<Match> implements MatchDao {
         return session.createQuery(GET_ALL_MATCHES_QUERY, Match.class)
                 .setFirstResult(offset)
                 .setMaxResults(pageSize)
-                .list();
+                .getResultList();
     }
 
     @Override

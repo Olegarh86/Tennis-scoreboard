@@ -74,7 +74,9 @@
 `hibernate.current_session_context_class`.
 
 ```xml
-<property name="hibernate.current_session_context_class">thread</property> <!-- thread — для режима одна-сессия-на-поток -->
+
+<property name="hibernate.current_session_context_class">thread
+</property> <!-- thread — для режима одна-сессия-на-поток -->
 ```
 
 А также создать класс, который инкапсулирует всю логику открытия/закрытия транзакций.

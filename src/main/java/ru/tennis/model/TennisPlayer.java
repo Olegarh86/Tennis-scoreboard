@@ -42,6 +42,7 @@ public class TennisPlayer {
         tennisSet.resetPoints();
         tennisMatch.nextPoint();
     }
+
     protected void loseMatch() {
         this.gameScore = GameScore.LOVE;
         tennisSet.resetPoints();

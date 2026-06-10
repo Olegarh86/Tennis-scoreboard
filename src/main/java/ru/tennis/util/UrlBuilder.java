@@ -32,15 +32,4 @@ public class UrlBuilder {
         }
         return url.toString();
     }
-
-//    private void ipopiou(int x) {
-//        if(x > 5-3 || x < 5-3) {
-//            current;
-//            if(x == 5) {
-//                current bold;
-//            }
-//        }
-//
-//    }
-
 }

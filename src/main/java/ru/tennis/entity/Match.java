@@ -14,27 +14,24 @@ import org.hibernate.annotations.Check;
 @Check(constraints = "player1_id != player2_id AND winner_id IN (player1_id, player2_id)")
 public class Match {
 
-    public Match(Player player1, Player player2, Player winner) {
-        this.player1 = player1;
-        this.player2 = player2;
-        this.winner = winner;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     @Setter
     private Long id;
-
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "player1_id", referencedColumnName = "id")
     private Player player1;
-
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "player2_id", referencedColumnName = "id")
     private Player player2;
-
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "winner_id", referencedColumnName = "id")
     private Player winner;
+
+    public Match(Player player1, Player player2, Player winner) {
+        this.player1 = player1;
+        this.player2 = player2;
+        this.winner = winner;
+    }
 }

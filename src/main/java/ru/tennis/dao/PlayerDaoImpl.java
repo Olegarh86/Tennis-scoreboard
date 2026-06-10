@@ -8,7 +8,6 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class PlayerDaoImpl extends BaseDaoImpl<Player> implements PlayerDao {
-
     private static final String NAME = "name";
     private static final String GET_PLAYER_BY_NAME = """
             SELECT p
